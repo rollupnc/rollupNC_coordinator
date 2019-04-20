@@ -10,4 +10,4 @@ const finalConfig = _.merge(defaultConfig, environmentConfig);
 
 global.gConfig = finalConfig;
 
-console.log("Loaded config....");
+console.log("Loading config....");

@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "receiver": "node src/app.js",
+    "processor":"node src/process_tx.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.5.3",

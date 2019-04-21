@@ -1,6 +1,6 @@
 // process tx from rabbit-mq queue
 // send all 2**m transfers to snark
-var amqp = require("amqplib/callback_api");
+var amqp = require("amqplib");
 const config = require("../config/config.js");
 
 amqp.connect(global.gConfig.amqp, function(err, conn) {

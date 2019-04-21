@@ -13,15 +13,14 @@ amqp.connect(global.gConfig.amqp, function(err, conn) {
     }
 
     var queue = global.gConfig.tx_queue;
-    channel.assertQueue(queue, {
-      durable: false
-    });
+    channel.assertQueue(queue);
 
     console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
     channel.consume(
       queue,
       function(msg) {
+        // add transaction to DB
         console.log(" [x] Received %s", msg.content.toString());
       },
       {

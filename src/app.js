@@ -6,6 +6,7 @@ var utils = require("./utils");
 var process_tx = require("./process_tx");
 var amqp = require("amqplib");
 const q = global.gConfig.tx_queue;
+const maxTxs = global.gConfig.txs_per_snark;
 var lastPushed = 0;
 // environment variables
 process.env.NODE_ENV = "development";
@@ -44,7 +45,7 @@ async function addtoqueue(conn) {
   var ch = await conn.createChannel();
   var result = await ch.assertQueue(q);
   console.log("message count", result);
-  if (result.messageCount - lastPushed > 4) {
+  if (result.messageCount - lastPushed > maxTxs) {
     console.log("clearing queue, starting aggregation");
     process_tx.fetchTxs();
     lastPushed = result.messageCount;

@@ -19,6 +19,7 @@ app.post("/submit_tx", async function(req, res) {
 
   // send tx to tx_pool
   await addtoqueue(await utils.getConn());
+  console.log("sent");
   res.json({ message: "Added transfer to tx pool " });
 });
 

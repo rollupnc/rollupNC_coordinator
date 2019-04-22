@@ -5,7 +5,6 @@ async function getConn() {
   if (conn === null) {
     conn = await amqp.connect(global.gConfig.amqp);
   }
-  console.log("here", conn);
   return conn;
 }
 module.exports = {

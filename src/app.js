@@ -3,8 +3,10 @@ var bodyParser = require("body-parser");
 var config = require("../config/config.js");
 var app = express();
 var utils = require("./utils");
+var process_tx = require("./process_tx");
 var amqp = require("amqplib");
 const q = global.gConfig.tx_queue;
+var lastPushed = 0;
 // environment variables
 process.env.NODE_ENV = "development";
 
@@ -13,6 +15,11 @@ app.use(bodyParser.json());
 
 //receives all transactions
 app.post("/submit_tx", async function(req, res) {
+  from = req.body.from;
+  to = req.body.to;
+  amount = req.body.amount;
+  tokenType = req.body.tokenType;
+
   // TODO validate input tx
 
   // TODO validate transaction
@@ -35,7 +42,13 @@ process.on("unhandledRejection", (reason, p) => {
 
 async function addtoqueue(conn) {
   var ch = await conn.createChannel();
-  await ch.assertQueue(q);
+  var result = await ch.assertQueue(q);
+  console.log("message count", result);
+  if (result.messageCount - lastPushed > 4) {
+    console.log("clearing queue, starting aggregation");
+    process_tx.fetchTxs();
+    lastPushed = result.messageCount;
+  }
   await ch.sendToQueue(q, Buffer.from("something to do"));
   return;
 }

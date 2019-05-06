@@ -13,6 +13,7 @@
   "dependencies": {
     "amqplib": "^0.5.3",
     "big-integer": "^1.6.43",
+    "blake-hash": "^1.1.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "lodash": "^4.17.11",

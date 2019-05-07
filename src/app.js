@@ -1,4 +1,5 @@
-var express = require("express");
+// var express = require("express");
+import express from 'express'
 var bodyParser = require("body-parser");
 const mimcjs = require("../circomlib/src/mimc7.js");
 var config = require("../config/config.js");
@@ -77,6 +78,7 @@ async function addtoqueue(conn) {
 }
 
 app.listen(global.gConfig.port, () => {
+  processor
   logger.info(
     "Started listening for transactions", { port: global.gConfig.port })
 });

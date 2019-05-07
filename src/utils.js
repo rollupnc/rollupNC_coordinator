@@ -1,4 +1,4 @@
-var amqp = require("amqplib");
+import amqp from 'amqplib';
 var conn = null;
 const mimcjs = require("../circomlib/src/mimc7.js");
 const eddsa = require("../circomlib/src/eddsa.js");
@@ -25,16 +25,17 @@ function checkSignature(tx, fromX, fromY, signature) {
 
 function toSignature(signature) {
   var sig = {
-    "R8": [BigInt(signature.R8[0].toString())],
+    "R8": [BigInt.leBugg(signature.R8[0].toString())],
     "S": BigInt(signature.S)
   }
   console.log("mew sig", sig)
   return
 }
-module.exports = {
+
+export default {
   getConn,
   conn,
   toMultiHash,
   checkSignature,
   toSignature
-};
+}

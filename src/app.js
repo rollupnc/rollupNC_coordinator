@@ -1,6 +1,8 @@
-// var express = require("express");
+
 import express from 'express'
-var bodyParser = require("body-parser");
+import Processor from './processor.js';
+import bodyParser from 'body-parser';
+
 const mimcjs = require("../circomlib/src/mimc7.js");
 var config = require("../config/config.js");
 const bigInt = require("snarkjs").bigInt;
@@ -19,6 +21,8 @@ var lastPushed = 0;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+const processor = new Processor()
 
 //receives all transactions
 app.post("/submitTx", async function (req, res) {
@@ -68,17 +72,12 @@ async function addtoqueue(conn) {
   var ch = await conn.createChannel();
   var result = await ch.assertQueue(q);
   logger.debug("Adding new message to queue", { queueDetails: result });
-  // if (result.messageCount - lastPushed > maxTxs) {
-  //   console.log("clearing queue, starting aggregation");
-  //   process_tx.fetchTxs();
-  //   lastPushed = result.messageCount;
-  // }
   await ch.sendToQueue(q, Buffer.from("something to do"));
   return;
 }
 
 app.listen(global.gConfig.port, () => {
-  processor
+  processor.start()
   logger.info(
     "Started listening for transactions", { port: global.gConfig.port })
 });

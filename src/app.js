@@ -2,27 +2,29 @@
 import express from 'express'
 import Processor from './processor.js';
 import bodyParser from 'body-parser';
-
-const mimcjs = require("../circomlib/src/mimc7.js");
-var config = require("../config/config.js");
+import Poller from './poller';
+import config from '../config/config.js';
+import utils from './utils'
+import eddsa from '../circomlib/src/eddsa.js';
+import logger from './logger';
 const bigInt = require("snarkjs").bigInt;
-var utils = require("./utils");
-var process_tx = require("./process_tx");
-var amqp = require("amqplib");
-const eddsa = require("../circomlib/src/eddsa.js");
 
-var app = express();
-var logger = require("./logger");
 process.env.NODE_ENV = "development";
-
-const q = global.gConfig.tx_queue;
-const maxTxs = global.gConfig.txs_per_snark;
-var lastPushed = 0;
-
+// create express obj 
+const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// define queue 
+const q = global.gConfig.tx_queue;
+const maxTxs = global.gConfig.txs_per_snark;
+
+// create poller obj 
+const poller = new Poller(global.gConfig.poll_interval);
+
+// create processor obj 
 const processor = new Processor()
+
 
 //receives all transactions
 app.post("/submitTx", async function (req, res) {
@@ -34,21 +36,21 @@ app.post("/submitTx", async function (req, res) {
   var tokenType = req.body.tokenType;
   var signature = req.body.signature;
   console.log("sig", signature)
-  utils.toSignature(signature)
+  // utils.toSignature(signature)
+
   // validate if signature is on correct tx hash 
-  txHash = utils.toMultiHash(fromX, fromY, toX, toY, amount, tokenType)
+  let txHash = utils.toMultiHash(fromX, fromY, toX, toY, amount, tokenType)
+
   // TODO make this work 
   // if (!utils.checkSignature(txHash, fromX, fromY, signature)) {
   //   res.status(400).json({ message: "Invalid signature" })
   //   return
   // }
 
-  // TODO validate tx with cached DB/other contraint checks
-
   // send tx to tx_pool
-  await addtoqueue(await utils.getConn());
+  await addtoqueue(await utils.getConn(), txHash);
   logger.debug("Added tx to pool")
-  res.json({ message: "Added transfer to tx pool " });
+  res.json({ message: "Added transfer to tx pool" });
 });
 
 app.post('/getTx', async function (req, res) {
@@ -68,21 +70,28 @@ app.post("/sign", async function (req, res) {
     signature: { "R8": signature.R8.toString(), "S": signature.S.toString() }
   })
 })
-async function addtoqueue(conn) {
+
+
+
+async function addtoqueue(conn, tx) {
   var ch = await conn.createChannel();
-  var result = await ch.assertQueue(q);
-  logger.debug("Adding new message to queue", { queueDetails: result });
-  await ch.sendToQueue(q, Buffer.from("something to do"));
+  var result = await ch.assertQueue(q, { durable: true });
+  logger.debug("Adding new message to queue", { queueDetails: result, tx: tx.toString() });
+  await ch.sendToQueue(q, Buffer.from(tx.toString()), { persistent: true });
   return;
 }
 
+
+
 app.listen(global.gConfig.port, () => {
-  processor.start()
+  console.log(poller.listenerCount('poll'))
+  processor.start(poller)
   logger.info(
     "Started listening for transactions", { port: global.gConfig.port })
 });
 
 process.on("SIGINT", async () => {
+
   console.log("Received interruption stopping receiver...");
   process.exit();
 });

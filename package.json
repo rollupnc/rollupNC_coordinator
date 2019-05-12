@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "receiver": "babel-node src/app.js",
-    "processor": "node src/process_tx.js",
+    "processor": "babel-node src/process_tx.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",

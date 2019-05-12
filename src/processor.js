@@ -2,37 +2,39 @@ import utils from './utils';
 import config from '../config/config.js';
 import logger from './logger'
 const q = global.gConfig.tx_queue;
-
+const maxTxs = global.gConfig.txs_per_snark;
 
 // processor is a polling service that will routinely pick transactions 
 // from rabbitmq queue and process them to provide as input to the ciruit
 export default class Processor {
   async start(poller) {
-    logger.info("Starting transaction processor", { pollingInterval: poller.timeout })
+    logger.info("starting transaction processor", { pollingInterval: poller.timeout })
     poller.poll()
     poller.onPoll(() => {
-      logger.debug("Trying to fetch transactions from queue")
       // fetch max number of transactions | transactions available 
       fetchTxs()
-
       poller.poll(); // Go for the next poll
     });
   }
 }
 async function fetchTxs() {
-  var conn = await utils.getConn();
-  var ch = await conn.createChannel();
-  var res = await ch.assertQueue(q, { durable: true });
-  if (res.messageCount < 2) {
-    console.log("less than 2 messages returning ")
+  let conn = await utils.getConn();
+  let ch = await conn.createChannel();
+  let res = await ch.assertQueue(q);
+
+  // if queue doest contain enough transactions wait for more 
+  // TODO if transactions in queue dont increase for `X` time
+  // force create snark with existing transactions 
+  if (res.messageCount <= maxTxs) {
+    logger.debug("waiting for more transactions to accumulate", { txCount: res.messageCount })
     return
   }
-  console.log("more than 2 messages here ")
-
-  ch.prefetch(2);
-
+  logger.debug("consuming transactions from queue", { txCount: res.messageCount })
+  // fetch max amount of possible transactions 
+  ch.prefetch(maxTxs);
   await ch.consume(q, msg => {
-    console.log("received %v", msg.content.toString());
+    logger.info("successfully consumed message", { tx: msg.content.toString() });
+    ch.ack(msg)
   });
   return;
 }

@@ -28,8 +28,8 @@ const consoleLogger = new winston.transports.Console({
 const transports = [consoleLogger /*, fileInfoLogger */] // console and file logger
 const filters = []
 const logger = winston.createLogger({
-  transports: transports,
-  filters: filters
+  filters: filters,
+  transports: transports
 })
 
 module.exports = logger

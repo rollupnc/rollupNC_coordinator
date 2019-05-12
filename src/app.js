@@ -35,7 +35,7 @@ app.post("/submitTx", async function (req, res) {
   var amount = req.body.amount;
   var tokenType = req.body.tokenType;
   var signature = req.body.signature;
-  console.log("sig", signature)
+
   // utils.toSignature(signature)
 
   // validate if signature is on correct tx hash 
@@ -53,13 +53,14 @@ app.post("/submitTx", async function (req, res) {
   res.json({ message: "Added transfer to tx pool" });
 });
 
+// get transaction hash from transaction params
 app.post('/getTx', async function (req, res) {
   var hash = await utils.toMultiHash(req.body.fromX, req.body.fromY, req.body.toX, req.body.toY, req.body.amount, req.body.tokenType).toString()
   logger.info("Tx leaf hash generated", { tx: hash })
   res.json({ txLeafHash: hash })
 })
 
-// temporary helper api to sign data using given priv key
+// temporary helper api to sign transaction using given priv key
 app.post("/sign", async function (req, res) {
   var prvKey = Buffer.from(
     req.body.privKey.padStart(64, '0'), "hex");
@@ -71,27 +72,24 @@ app.post("/sign", async function (req, res) {
   })
 })
 
-
-
+// add transaction to queue
 async function addtoqueue(conn, tx) {
   var ch = await conn.createChannel();
-  var result = await ch.assertQueue(q, { durable: true });
+  var result = await ch.assertQueue(q);
   logger.debug("Adding new message to queue", { queueDetails: result, tx: tx.toString() });
   await ch.sendToQueue(q, Buffer.from(tx.toString()), { persistent: true });
   return;
 }
 
-
-
+// start api server 
 app.listen(global.gConfig.port, () => {
-  console.log(poller.listenerCount('poll'))
   processor.start(poller)
   logger.info(
     "Started listening for transactions", { port: global.gConfig.port })
 });
 
+// handle interruption
 process.on("SIGINT", async () => {
-
   console.log("Received interruption stopping receiver...");
   process.exit();
 });

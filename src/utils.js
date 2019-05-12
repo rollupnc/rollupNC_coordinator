@@ -1,6 +1,7 @@
 import amqp from 'amqplib';
 import mimcjs from '../circomlib/src/mimc7.js';
 import eddsa from '../circomlib/src/eddsa.js';
+import logger from './logger'
 const bigInt = require("snarkjs").bigInt;
 
 var conn = null;
@@ -36,9 +37,25 @@ function checkSignature(tx, fromX, fromY, signature) {
 //   return
 // }
 
+function prepTxs(...txs) {
+  var pubkeys = []
+  var tokenTypes = []
+  var nonces = []
+  var amounts = []
+  var signatures = []
+  logger.debug("prepping inputs to snark for given transactions")
+  for (var i = 0; i < txs.length; i++) {
+
+  }
+}
+
+function genPubkeys(...pubkey) {
+
+}
 export default {
   getConn,
   conn,
   toMultiHash,
-  checkSignature
+  checkSignature,
+  prepTxs
 }

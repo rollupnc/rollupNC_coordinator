@@ -1,6 +1,7 @@
 import utils from './utils';
 import config from '../config/config.js';
 import logger from './logger'
+import circuit from './circuit'
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
 
@@ -17,7 +18,9 @@ export default class Processor {
     });
   }
 }
+
 async function fetchTxs() {
+  let txs = []
   let conn = await utils.getConn();
   let ch = await conn.createChannel();
   let res = await ch.assertQueue(q);
@@ -30,11 +33,16 @@ async function fetchTxs() {
     return
   }
   logger.debug("consuming transactions from queue", { txCount: res.messageCount })
+
   // fetch max amount of possible transactions 
   ch.prefetch(maxTxs);
   await ch.consume(q, msg => {
+    txs.push(msg.content)
     logger.info("successfully consumed message", { tx: msg.content.toString() });
     ch.ack(msg)
   });
+
+  // create snark proof for transactions 
+  circuit.createProof(txs)
   return;
 }

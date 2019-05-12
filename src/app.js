@@ -25,6 +25,10 @@ const poller = new Poller(global.gConfig.poll_interval);
 // create processor obj 
 const processor = new Processor()
 
+// tokens for which operator is accepting transactions
+// to be dynamically fetched from contract
+const allowedTokens = [0, 10, 20]
+
 
 //receives all transactions
 app.post("/submitTx", async function (req, res) {

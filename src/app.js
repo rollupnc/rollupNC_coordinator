@@ -79,7 +79,7 @@ app.post("/sign", async function (req, res) {
 // add transaction to queue
 async function addtoqueue(conn, tx) {
   var ch = await conn.createChannel();
-  var result = await ch.assertQueue(q);
+  var result = await ch.assertQueue(q, { durable: true });
   logger.debug("Adding new message to queue", { queueDetails: result, tx: tx.toString() });
   await ch.sendToQueue(q, Buffer.from(tx.toString()), { persistent: true });
   return;

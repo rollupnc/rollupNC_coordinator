@@ -1,7 +1,15 @@
 import utils from './utils';
-async function createProof(...txs) {
-  var inputToSnark = await utils.prepTxs(txs);
+import zkSnark from 'snarkjs';
+import fs from 'fs';
+// const circuitDef = JSON.parse(fs.readFileSync("../snark/trasfer.cir", "utf8"));
+// const circuit = new zkSnark.Circuit(circuitDef);
+// const vk_proof = JSON.parse(fs.readFileSync("../snark/myCircuit.vk_proof", "utf8"));
 
+async function createProof(...txs) {
+  var input = await utils.prepTxs(txs);
+  // var witness = circuit.calculateWitness(inputToSnark);
+  // var { proof, publicSignals } = zkSnark.genProof(vk_proof, witness);
+  // send proof to mainchain 
 }
 
-export default createProof
+export default createProof;

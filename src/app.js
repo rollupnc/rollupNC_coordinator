@@ -8,6 +8,7 @@ import utils from './utils'
 import eddsa from '../circomlib/src/eddsa.js';
 import logger from './logger';
 import Transaction from './transaction.js';
+import mysql from 'mysql';
 const bigInt = require("snarkjs").bigInt;
 
 process.env.NODE_ENV = "development";
@@ -76,6 +77,24 @@ app.post("/sign", async function (req, res) {
     signature: { "R8": signature.R8.toString(), "S": signature.S.toString() }
   })
 })
+
+function connToDB() {
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'astrokick'
+  });
+
+  connection.connect(function (err) {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      return;
+    }
+
+    console.log('connected as id ' + connection.threadId);
+  });
+}
+
 
 // add transaction to queue
 async function addtoqueue(conn, tx) {

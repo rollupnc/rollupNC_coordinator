@@ -39,7 +39,6 @@ module.exports = {
         } else {
             console.log('please enter values as arrays.')
         }
-
     },
 
     hashBalanceLeafArray: function (leafArray) {

@@ -7,6 +7,7 @@ import config from '../config/config.js';
 import utils from './utils'
 import eddsa from '../circomlib/src/eddsa.js';
 import logger from './logger';
+import Transaction from './transaction.js';
 const bigInt = require("snarkjs").bigInt;
 
 process.env.NODE_ENV = "development";
@@ -50,9 +51,9 @@ app.post("/submitTx", async function (req, res) {
   //   res.status(400).json({ message: "Invalid signature" })
   //   return
   // }
-
+  var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType)
   // send tx to tx_pool
-  await addtoqueue(await utils.getConn(), [fromX, fromY, toX, toY, amount, tokenType, signature]);
+  await addtoqueue(await utils.getConn(), tx.serialise());
   logger.debug("Added tx to pool")
   res.json({ message: "Added transfer to tx pool" });
 });

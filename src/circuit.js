@@ -5,7 +5,7 @@ import fs from 'fs';
 // const circuit = new zkSnark.Circuit(circuitDef);
 // const vk_proof = JSON.parse(fs.readFileSync("../snark/myCircuit.vk_proof", "utf8"));
 
-async function createProof(...txs) {
+async function createProof(txs) {
   var input = await utils.prepTxs(txs);
   // var witness = circuit.calculateWitness(inputToSnark);
   // var { proof, publicSignals } = zkSnark.genProof(vk_proof, witness);

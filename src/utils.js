@@ -57,7 +57,10 @@ function prepTxs(...txs) {
   var amounts = []
   var signatures = []
   logger.debug("Prepping inputs to snark for given transactions")
-  for (var i = 0; i < txs.length; i++) {
+  txs = txs[0]
+  for (var i = 0; i < 4; i++) {
+
+    logger.debug("traversing", { index: i, len: txs.length, transaction: txs[i] })
     fromX.push(txs[i].fromX)
     fromY.push(txs[i].fromY)
 
@@ -67,33 +70,38 @@ function prepTxs(...txs) {
     // collect amounts 
     amounts.push(txs[i].amount)
     // collect token types
-    tokenTypes.push(txs[i].tokenTypes)
+    tokenTypes.push(txs[i].tokenType)
     // collect sigs
     signatures.push(txs[i].signature)
   }
+  logger.debug("We have the following arrays now", fromX, amounts, tokenTypes)
   const txArray = tx.generateTxLeafArray(fromX, fromY, toX, toY, amounts, tokenTypes)
   console.log("txarray is", txArray)
   const txLeafHashes = tx.hashTxLeafArray(txArray)
+  const txTree = merkle.treeFromLeafArray(txLeafHashes)
+
   const txProofs = new Array(2 ** TX_DEPTH)
-  for (jj = 0; jj < 2 ** TX_DEPTH; jj++) {
+  for (var jj = 0; jj < 2 ** TX_DEPTH; jj++) {
     txProofs[jj] = merkle.getProof(jj, txTree, txLeafHashes)
   }
   // TODO move balance leaf array generation DB based
   const token_types = [0, 10, 10, 10];
   const balances = [0, 1000, 0, 0];
   nonces = [0, 0, 0, 0];
-  // generate balance leaves for user accounts
-  const balanceLeafArray = balanceLeaf.generateBalanceLeafArray(
-    account.getPubKeysX(pubKeys),
-    account.getPubKeysY(pubKeys),
-    token_types, balances, nonces
-  )
+  // const prvKeys = account.generatePrvKeys(3);
+  // const pubKeys = account.generatePubKeys(prvKeys);
 
+  // generate balance leaves for user accounts
+  // const balanceLeafArray = balance.generateBalanceLeafArray(
+  //   account.getPubKeysX(pubKeys),
+  //   account.getPubKeysY(pubKeys),
+  //   token_types, balances, nonces
+  // )
+  console.log("here")
   // when adding deposit user will be assigned a leaf 
   // id will be stored in DB (hardcode for now, till things work)
-  from_accounts_idx = [1, 2, 1, 3]
-  to_accounts_idx = [2, 0, 3, 2]
-
+  var from_accounts_idx = [1, 2, 1, 3]
+  var to_accounts_idx = [2, 0, 3, 2]
 
   const inputs = update.processTxArray(
     TX_DEPTH,
@@ -101,13 +109,14 @@ function prepTxs(...txs) {
     fromY,
     toX,
     toY,
-    balanceLeafArray,
+    [],
     from_accounts_idx,
     to_accounts_idx,
     amounts,
-    tx_token_types,
+    token_types,
     signatures
   )
+  console.log("input generated", inputs)
 
 }
 

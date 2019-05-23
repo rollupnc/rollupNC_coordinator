@@ -1,39 +1,16 @@
-const getFields = () => [
-  {
-    name: "from",
-    default: new Buffer([])
-  },
-  {
-    name: "to",
-    default: new Buffer([])
-  },
-  {
-    name: "nonce",
-    default: new Buffer([])
-  },
-  {
-    name: "amount",
-    default: new Buffer([])
-  },
-  {
-    name: "A",
-    default: new Buffer([])
-  },
-  {
-    name: "R",
-    default: new Buffer([])
-  },
-  {
-    name: "S",
-    default: new Buffer([])
-  }
-];
-
 // class transaction
 export default class Transaction {
-  constructor({ from = "", to = "" }) {
-    this.from = from;
-    this.to = to;
+  constructor(_fromX, _fromY, _toX, _toY, _amount, _tokenType, _sig) {
+    this.fromX = _fromX;
+    this.fromY = _fromY;
+
+    this.toX = _toX;
+    this.toY = _toY;
+
+
+    this.amount = _amount
+    this.tokenType = _tokenType;
+    this.sig = _sig
   }
 
   /**
@@ -42,6 +19,18 @@ export default class Transaction {
    */
   sign(privateKey) {
     // sign on transaction using private key
+  }
+
+  serialise() {
+    var tx = [{
+      fromX: this.fromX,
+      fromY: this.fromY,
+      toX: this.toX,
+      toY: this.toY,
+      tokenType: this.tokenType,
+      amount: this.amount,
+    }];
+    return (new Buffer(JSON.stringify(tx)))
   }
 
   async validate() {
@@ -60,7 +49,11 @@ export default class Transaction {
 
   // type
   _type() {
-    // gives out the type of transaction
-    // returns enum{transfer,withdraw}
+    if (this.toX = 0) {
+      return "withdraw"
+    }
+    else {
+      return "transfer"
+    }
   }
 }

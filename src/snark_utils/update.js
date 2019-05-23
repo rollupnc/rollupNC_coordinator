@@ -24,28 +24,28 @@ module.exports = {
         signatures,
     ) {
 
-        txPosArray = merkle.generateMerklePosArray(tx_depth)
+        var txPosArray = merkle.generateMerklePosArray(tx_depth)
 
-        intermediateRoots = new Array(2 ** (tx_depth + 1))
+        var intermediateRoots = new Array(2 ** (tx_depth + 1))
 
-        fromProofs = new Array(2 ** tx_depth)
-        newToProofs = new Array(2 ** tx_depth)
+        var fromProofs = new Array(2 ** tx_depth)
+        var newToProofs = new Array(2 ** tx_depth)
 
-        fromPosArray = new Array(2 ** tx_depth)
-        toPosArray = new Array(2 ** tx_depth)
+        var fromPosArray = new Array(2 ** tx_depth)
+        var toPosArray = new Array(2 ** tx_depth)
 
-        R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signatures))
-        R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signatures))
-        SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signatures))
+        var R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signatures))
+        var R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signatures))
+        var SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signatures))
 
-        nonceFromArray = new Array(2 ** tx_depth)
+        var nonceFromArray = new Array(2 ** tx_depth)
 
-        nonceToArray = new Array(2 ** tx_depth)
+        var nonceToArray = new Array(2 ** tx_depth)
 
-        tokenBalanceFromArray = new Array(2 ** tx_depth)
-        tokenBalanceToArray = new Array(2 ** tx_depth)
-        tokenTypeFromArray = new Array(2 ** tx_depth)
-        tokenTypeToArray = new Array(2 ** tx_depth)
+        var tokenBalanceFromArray = new Array(2 ** tx_depth)
+        var tokenBalanceToArray = new Array(2 ** tx_depth)
+        var tokenTypeFromArray = new Array(2 ** tx_depth)
+        var tokenTypeToArray = new Array(2 ** tx_depth)
 
         const txArray = txLeaf.generateTxLeafArray(
             from_x, from_y, to_x, to_y, amounts, tx_token_types
@@ -64,7 +64,7 @@ module.exports = {
 
         intermediateRoots[0] = originalState
 
-        for (k = 0; k < 2 ** tx_depth; k++) {
+        for (var k = 0; k < 2 ** tx_depth; k++) {
 
             nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['nonce']
             nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['nonce']
@@ -79,7 +79,7 @@ module.exports = {
 
             fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
 
-            output = module.exports.processTx(
+            var output = module.exports.processTx(
                 k, txArray, txProofs[k], signatures[k], txRoot,
                 from_accounts_idx[k], to_accounts_idx[k], balanceLeafArrayReceiver,
                 fromProofs[k], intermediateRoots[2 * k]
@@ -143,18 +143,18 @@ module.exports = {
 
 
         // parse txLeaf
-        txDepth = txProof.length //depth of tx tree
+        var txDepth = txProof.length //depth of tx tree
         const txLeaf = txLeafArray[txIdx] //the transaction being processed
-        txLeafHash = tx.hashTxLeafArray([txLeaf])[0] // hash of tx being processed
+        var txLeafHash = tx.hashTxLeafArray([txLeaf])[0] // hash of tx being processed
 
-        txPos = merkle.idxToBinaryPos(txIdx, txDepth) //binary vector
+        var txPos = merkle.idxToBinaryPos(txIdx, txDepth) //binary vector
 
         // parse balanceLeaves
-        balDepth = fromProof.length; // depth of balance tree
+        var balDepth = fromProof.length; // depth of balance tree
         const fromLeaf = balanceLeafArray[fromLeafIdx] //sender account
-        fromLeafHash = balance.hashBalanceLeafArray([fromLeaf])[0] // hash of sender acct
+        var fromLeafHash = balance.hashBalanceLeafArray([fromLeaf])[0] // hash of sender acct
         const toLeaf = balanceLeafArray[toLeafIdx] //receiver account
-        toLeafHash = balance.hashBalanceLeafArray([toLeaf])[0] //hash of receiver acct
+        var toLeafHash = balance.hashBalanceLeafArray([toLeaf])[0] //hash of receiver acct
 
         //check tx existence
         assert(merkle.verifyProof(txLeafHash, txIdx, txProof, txRoot))
@@ -180,25 +180,25 @@ module.exports = {
         [newFromLeaf, newToLeaf] = module.exports.getNewLeaves(txLeaf, fromLeaf, toLeaf)
 
         // update sender leaf to get first intermediate root
-        newLeafArraySender = balanceLeafArray.slice(0) //clone leaf array 
+        var newLeafArraySender = balanceLeafArray.slice(0) //clone leaf array 
         newLeafArraySender[fromLeafIdx] = newFromLeaf
 
-        newLeafHashArraySender = balance.hashBalanceLeafArray(newLeafArraySender)
-        newTreeSender = merkle.treeFromLeafArray(newLeafHashArraySender)
-        newRootSender = merkle.rootFromLeafArray(newLeafHashArraySender)
+        var newLeafHashArraySender = balance.hashBalanceLeafArray(newLeafArraySender)
+        var newTreeSender = merkle.treeFromLeafArray(newLeafHashArraySender)
+        var newRootSender = merkle.rootFromLeafArray(newLeafHashArraySender)
 
         // get inclusion proof for receiver leaf using first intermediate root
-        newToProof = merkle.getProof(toLeafIdx, newTreeSender, newLeafHashArraySender)
+        var newToProof = merkle.getProof(toLeafIdx, newTreeSender, newLeafHashArraySender)
 
         // check receiver existence in first intermediate root
         assert(merkle.verifyProof(toLeafHash, toLeafIdx, newToProof, newRootSender))
 
         // update receiver leaf to get second intermediate root
-        newLeafArrayReceiver = newLeafArraySender.slice(0) //clone leaf array
+        var newLeafArrayReceiver = newLeafArraySender.slice(0) //clone leaf array
         newLeafArrayReceiver[toLeafIdx] = newToLeaf
-        newLeafHashArrayReceiver = balance.hashBalanceLeafArray(newLeafArrayReceiver)
-        newTreeReceiver = merkle.treeFromLeafArray(newLeafHashArrayReceiver)
-        newRootReceiver = merkle.rootFromLeafArray(newLeafHashArrayReceiver)
+        var newLeafHashArrayReceiver = balance.hashBalanceLeafArray(newLeafArrayReceiver)
+        var newTreeReceiver = merkle.treeFromLeafArray(newLeafHashArrayReceiver)
+        var newRootReceiver = merkle.rootFromLeafArray(newLeafHashArrayReceiver)
 
         return {
             newRootSender: newRootSender, //first intermediate root after updating sender
@@ -215,11 +215,11 @@ module.exports = {
 
     getNewLeaves: function (tx, fromLeaf, toLeaf) {
 
-        fromLeafCopy = balance.getZeroLeaf()
-        toLeafCopy = balance.getZeroLeaf()
+        var fromLeafCopy = balance.getZeroLeaf()
+        var toLeafCopy = balance.getZeroLeaf()
 
-        newFromLeaf = Object.assign(fromLeafCopy, fromLeaf)
-        newToLeaf = Object.assign(toLeafCopy, toLeaf)
+        var newFromLeaf = Object.assign(fromLeafCopy, fromLeaf)
+        var newToLeaf = Object.assign(toLeafCopy, toLeaf)
 
         newFromLeaf['balance'] = newFromLeaf['balance'] - tx['amount']
         newFromLeaf['nonce'] = newFromLeaf['nonce'] + 1
@@ -255,24 +255,24 @@ module.exports = {
     },
 
     stringifyArray: function (array) {
-        stringified = new Array(array.length)
-        for (j = 0; j < array.length; j++) {
+        var stringified = new Array(array.length)
+        for (var j = 0; j < array.length; j++) {
             stringified[j] = array[j].toString()
         }
         return stringified;
     },
 
     stringifyArrayOfArrays: function (arrayOfArrays) {
-        outerArray = new Array(arrayOfArrays.length)
-        for (i = 0; i < arrayOfArrays.length; i++) {
+        var outerArray = new Array(arrayOfArrays.length)
+        for (var i = 0; i < arrayOfArrays.length; i++) {
             outerArray[i] = module.exports.stringifyArray(arrayOfArrays[i])
         }
         return outerArray
     },
 
     pickByIndices: function (array, idxArray) {
-        pickedArray = new Array(idxArray.length)
-        for (i = 0; i < idxArray.length; i++) {
+        var pickedArray = new Array(idxArray.length)
+        for (var i = 0; i < idxArray.length; i++) {
             pickedArray[i] = array[idxArray[i]]
         }
         return pickedArray

@@ -21,8 +21,9 @@ export default class Processor {
 }
 
 async function fetchTxs() {
-  let txs = []
+  let txs = new Array()
   let conn = await utils.getConn();
+
   let ch = await conn.createChannel();
   let res = await ch.assertQueue(q, { durable: true });
 
@@ -38,22 +39,17 @@ async function fetchTxs() {
   // fetch max amount of possible transactions 
   ch.prefetch(maxTxs);
 
-  await ch.consume(q, async msg => {
-    txs.push(msg.content)
+  ch.consume(q, async msg => {
     if (txs.length > maxTxs) {
-      console.log("length exceeded")
+      logger.info("consumed batch successfully, closing channel till next batch")
+      // send transactions to snark 
+      createProof(txs)
       await ch.close()
-      await conn.close()
-      // ch.nack(msg)
     } else {
-      console.log("inlength")
-      ch.ack(msg)
+      await ch.ack(msg)
+      txs.push(JSON.parse(msg.content)[0])
       logger.info("successfully consumed message", { tx: msg.content.toString() });
     }
   }, { noAck: false });
-  console.log("transactions", txs)
-
-  // create snark proof for transactions 
-  createProof(txs)
   return;
 }

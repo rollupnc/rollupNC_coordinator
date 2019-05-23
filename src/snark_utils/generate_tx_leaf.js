@@ -29,7 +29,7 @@ module.exports = {
             var txLeafHashArray = [];
             for (var i = 0; i < leafArray.length; i++) {
                 console.log("leaf hash", leafArray)
-                leafHash = mimcjs.multiHash([
+                var leafHash = mimcjs.multiHash([
                     leafArray[i]['from_x'].toString(),
                     leafArray[i]['from_y'].toString(),
                     leafArray[i]['to_x'].toString(),
@@ -60,7 +60,7 @@ module.exports = {
 
     getSignaturesR8x: function (signatures) {
         var R8xArray = new Array(signatures.length)
-        for (i = 0; i < signatures.length; i++) {
+        for (var i = 0; i < signatures.length; i++) {
             R8xArray[i] = signatures[i]['R8'][0]
         }
         return R8xArray

@@ -10,7 +10,7 @@ module.exports = {
 
     generatePrvKeys: function (n) {
         var prvKeys = [];
-        for (i = 1; i < n + 1; i++) {
+        for (var i = 1; i < n + 1; i++) {
             var prvKey = Buffer.from(
                 i.toString().padStart(64, '0'), "hex");
             // console.log(prvKey);
@@ -22,7 +22,7 @@ module.exports = {
     generatePubKeys: function (prvKeys) {
         if (Array.isArray(prvKeys)) {
             var pubKeys = [];
-            for (i = 0; i < prvKeys.length; i++) {
+            for (var i = 0; i < prvKeys.length; i++) {
                 var pubKey = eddsa.prv2pub(prvKeys[i]);
                 pubKeys.push(pubKey);
             }
@@ -36,7 +36,7 @@ module.exports = {
     getPubKeysX: function (pubKeys) {
         if (Array.isArray(pubKeys[0])) {
             var pubKeysX = [];
-            for (i = 0; i < pubKeys.length; i++) {
+            for (var i = 0; i < pubKeys.length; i++) {
                 var pubKeyX = pubKeys[i][0];
                 pubKeysX.push(pubKeyX);
             }
@@ -49,7 +49,7 @@ module.exports = {
     getPubKeysY: function (pubKeys) {
         if (Array.isArray(pubKeys[0])) {
             var pubKeysY = [];
-            for (i = 0; i < pubKeys.length; i++) {
+            for (var i = 0; i < pubKeys.length; i++) {
                 var pubKeyY = pubKeys[i][1];
                 pubKeysY.push(pubKeyY);
             }

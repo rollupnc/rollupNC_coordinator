@@ -12,8 +12,11 @@ if (!fs.existsSync(logDir)) {
 
 // colorize the output to the console
 const consoleLogger = new winston.transports.Console({
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  ),
   timestamp: tsFormat,
-  colorize: true,
   level: global.gConfig.log_level
 })
 

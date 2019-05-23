@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "receiver": "babel-node src/app.js",
-    "processor": "babel-node src/process_tx.js",
+    "coordinator": "babel-node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",

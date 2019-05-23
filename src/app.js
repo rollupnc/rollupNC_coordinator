@@ -52,7 +52,7 @@ app.post("/submitTx", async function (req, res) {
   // }
 
   // send tx to tx_pool
-  await addtoqueue(await utils.getConn(), txHash);
+  await addtoqueue(await utils.getConn(), [fromX, fromY, toX, toY, amount, tokenType, signature]);
   logger.debug("Added tx to pool")
   res.json({ message: "Added transfer to tx pool" });
 });

@@ -2,6 +2,7 @@ import utils from './utils';
 import config from '../config/config.js';
 import logger from './logger';
 import createProof from './circuit';
+
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
 
@@ -36,11 +37,20 @@ async function fetchTxs() {
 
   // fetch max amount of possible transactions 
   ch.prefetch(maxTxs);
-  await ch.consume(q, msg => {
+
+  await ch.consume(q, async msg => {
     txs.push(msg.content)
-    logger.info("successfully consumed message", { tx: msg.content.toString() });
-    ch.ack(msg)
-  });
+    if (txs.length > maxTxs) {
+      console.log("length exceeded")
+      await ch.close()
+      await conn.close()
+      // ch.nack(msg)
+    } else {
+      console.log("inlength")
+      ch.ack(msg)
+      logger.info("successfully consumed message", { tx: msg.content.toString() });
+    }
+  }, { noAck: false });
   console.log("transactions", txs)
 
   // create snark proof for transactions 

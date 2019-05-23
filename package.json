@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "coordinator": "babel-node src/app.js",
+    "create-DB": "node DB/createDB.js",
+    "migration": "knex migrate:latest",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
@@ -31,6 +33,7 @@
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "express": "^4.16.4",
+    "knex": "^0.16.5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "mysql": "^2.17.1",

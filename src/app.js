@@ -41,22 +41,11 @@ app.post("/submitTx", async function (req, res) {
   var amount = req.body.amount;
   var tokenType = req.body.tokenType;
   var signature = req.body.signature;
-
-  // utils.toSignature(signature)
-
-  // validate if signature is on correct tx hash 
-  let txHash = utils.toMultiHash(fromX, fromY, toX, toY, amount, tokenType)
-
-  // TODO make this work 
-  // if (!utils.checkSignature(txHash, fromX, fromY, signature)) {
-  //   res.status(400).json({ message: "Invalid signature" })
-  //   return
-  // }
   var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType)
   // send tx to tx_pool
   await addtoqueue(await utils.getConn(), tx.serialise());
-  logger.debug("Added tx to pool")
-  res.json({ message: "Added transfer to tx pool" });
+  logger.debug("Added tx to queue")
+  res.json({ message: "Success" });
 });
 
 // get transaction hash from transaction params

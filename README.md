@@ -10,12 +10,36 @@ Acts as a co-ordinator between users for RollupNC
 npm i
 ```
 
+## Run Migrations
+
+```bash
+npm run migrations
+```
+
+> Note mysql needs to be installed
+
+## Reset DB and Rerun Migrations
+
+```bash
+npm run redo
+```
+
+## Alter genesis balance state
+
+To alter the genesis state, change config/genesis.json
+
 ## Run
 
 > Please set configration as per requirement in config/config.json
 
 ```bash
-npm run receiver
+npm run coordinator
+```
+
+## Send test transactions
+
+```bash
+bash sendTestRequests.sh
 ```
 
 ## Send test transaction

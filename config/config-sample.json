@@ -4,14 +4,15 @@
     "tx_queue": "transfer",
     "txs_per_snark": 4,
     "log_level": "debug",
-    "poll_interval": "10000",
+    "poll_interval": "1000",
     "contractAddress": "",
     "RPC": "http://localhost:8545",
     "tx_depth": 2,
     "balance_depth": 2,
     "host": "localhost",
     "user": "root",
-    "password": "123456",
+    "password": "123",
+    "db_name": "rollupNC",
     "port": 3000
   },
   "staging": {
@@ -24,9 +25,6 @@
     "RPC": "https://ropsten.etherscan.io",
     "tx_depth": 2,
     "balance_depth": 2,
-    "host": "localhost",
-    "user": "root",
-    "password": "123456",
     "port": 3000
   },
   "production": {
@@ -39,9 +37,6 @@
     "RPC": "https://mainnet.etherscan.io",
     "tx_depth": 2,
     "balance_depth": 2,
-    "host": "localhost",
-    "user": "root",
-    "password": "123456",
     "port": 3000
   }
 }

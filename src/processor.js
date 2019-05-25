@@ -2,6 +2,7 @@ import utils from './utils';
 import config from '../config/config.js';
 import logger from './logger';
 import createProof from './circuit';
+import db from './db';
 
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
@@ -20,36 +21,36 @@ export default class Processor {
   }
 }
 
+// pick max transactions from mempool 
+// provide to snark
+// TODO:
+// 1. Sort and select by fee 
+// 2. Wait for X interval for max transactions to accumulate, 
+//    after X create proof for available txs
+
 async function fetchTxs() {
-  let txs = new Array()
-  let conn = await utils.getConn();
-
-  let ch = await conn.createChannel();
-  let res = await ch.assertQueue(q, { durable: true });
-
-  // if queue doest contain enough transactions wait for more 
-  // TODO if transactions in queue dont increase for `X` time
-  // force create snark with existing transactions 
-  if (res.messageCount <= maxTxs) {
-    logger.debug("waiting for more transactions to accumulate", { txCount: res.messageCount })
+  // TODO if number of rows in table > req txs
+  var txs = await db.getMaxTxs()
+  logger.info("fetched transactions from mempool", {
+    count: txs.length,
+  })
+  if (txs.length <= 0) {
     return
   }
-  logger.debug("consuming transactions from queue", { txCount: res.messageCount })
-
-  // fetch max amount of possible transactions 
-  ch.prefetch(maxTxs);
-
-  ch.consume(q, async msg => {
-    if (txs.length > maxTxs) {
-      logger.info("consumed batch successfully, closing channel till next batch")
-      // send transactions to snark 
-      createProof(txs)
-      await ch.close()
-    } else {
-      await ch.ack(msg)
-      txs.push(JSON.parse(msg.content)[0])
-      logger.info("successfully consumed message", { tx: msg.content.toString() });
-    }
-  }, { noAck: false });
+  var transactions = Array()
+  // sanitise the transactions for proof 
+  // TODO remove after POC 
+  txs.forEach(async (tx) => {
+    var transaction = {}
+    transaction["fromX"] = tx.fromX
+    transaction["fromY"] = tx.fromY
+    transaction["toX"] = tx.toX
+    transaction["toY"] = tx.toY
+    transaction["amount"] = tx.amount
+    transaction["tokenType"] = tx.tokenType
+    transaction["signature"] = utils.toSignature(tx.R1, tx.R2, tx.S)
+    transactions.push(transaction)
+  });
+  createProof(transactions)
   return;
 }

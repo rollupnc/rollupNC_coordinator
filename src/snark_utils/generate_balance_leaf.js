@@ -1,9 +1,10 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
+const bigInt = require("snarkjs").bigInt;
 
 module.exports = {
 
     getZeroLeaf: function () {
-        zeroLeaf = {};
+        var zeroLeaf = {};
         zeroLeaf['pubKey_x'] = BigInt("0".padStart(76, '0'));
         zeroLeaf['pubKey_y'] = BigInt("0".padStart(77, '0'));
         zeroLeaf['balance'] = 0;
@@ -13,7 +14,7 @@ module.exports = {
     },
 
     isZeroLeaf: function (balanceLeaf) {
-        zeroLeaf = module.exports.getZeroLeaf()
+        var zeroLeaf = module.exports.getZeroLeaf()
         if (
             zeroLeaf['pubKey_x'] == balanceLeaf['pubKey_x'] &&
             zeroLeaf['pubKey_y'] == balanceLeaf['pubKey_y'] &&
@@ -25,9 +26,9 @@ module.exports = {
 
     generateBalanceLeafArray: function (accts_x, accts_y, token_types, balances, nonces) {
         if (Array.isArray(accts_x)) {
-            balanceLeafArray = [];
-            for (i = 0; i < accts_x.length; i++) {
-                leaf = {}
+            var balanceLeafArray = [];
+            for (var i = 0; i < accts_x.length; i++) {
+                var leaf = {}
                 leaf['pubKey_x'] = accts_x[i];
                 leaf['pubKey_y'] = accts_y[i];
                 leaf['balance'] = balances[i];
@@ -43,9 +44,9 @@ module.exports = {
 
     hashBalanceLeafArray: function (leafArray) {
         if (Array.isArray(leafArray)) {
-            balanceLeafHashArray = [];
-            for (i = 0; i < leafArray.length; i++) {
-                leafHash = mimcjs.multiHash([
+            var balanceLeafHashArray = [];
+            for (var i = 0; i < leafArray.length; i++) {
+                var leafHash = mimcjs.multiHash([
                     leafArray[i]['pubKey_x'].toString(),
                     leafArray[i]['pubKey_y'].toString(),
                     leafArray[i]['balance'].toString(),

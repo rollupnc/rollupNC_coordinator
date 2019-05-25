@@ -28,7 +28,6 @@ module.exports = {
         if (Array.isArray(leafArray)) {
             var txLeafHashArray = [];
             for (var i = 0; i < leafArray.length; i++) {
-                console.log("leaf hash", leafArray)
                 var leafHash = mimcjs.multiHash([
                     leafArray[i]['from_x'].toString(),
                     leafArray[i]['from_y'].toString(),

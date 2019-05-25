@@ -7,6 +7,9 @@ exports.up = function (knex, Promise) {
     t.string('toY').notNullable()
     t.string('amount').notNullable()
     t.string('tokenType').notNullable()
+    t.string('R1').notNullable()
+    t.string('R2').notNullable()
+    t.string('S').notNullable()
   })
 };
 

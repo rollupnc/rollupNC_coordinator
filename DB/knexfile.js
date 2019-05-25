@@ -1,8 +1,10 @@
+var config = require('../config/config.js')
+
 module.exports = {
   client: 'mysql',
   connection: {
-    user: 'root',
-    password: 'astrokick',
-    database: 'rollupNC'
+    user: global.gConfig.user,
+    password: global.gConfig.password,
+    database: global.gConfig.db_name
   }
 }

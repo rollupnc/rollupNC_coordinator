@@ -56,7 +56,7 @@ module.exports = {
         const txRoot = merkle.rootFromLeafArray(txLeafHashes)
 
         const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashes)
-
+        console.log("balance receiver ", balanceLeafArrayReceiver)
         var balanceLeafHashArrayReceiver = balance.hashBalanceLeafArray(balanceLeafArrayReceiver)
 
         var balanceTreeReceiver = merkle.treeFromLeafArray(balanceLeafHashArrayReceiver)

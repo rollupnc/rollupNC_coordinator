@@ -9,6 +9,8 @@ import eddsa from '../circomlib/src/eddsa.js';
 import logger from './logger';
 import Transaction from './transaction.js';
 import mysql from 'mysql';
+import Mempool from './mempool.js';
+import DB from './db'
 const bigInt = require("snarkjs").bigInt;
 
 process.env.NODE_ENV = "development";
@@ -26,7 +28,7 @@ const poller = new Poller(global.gConfig.poll_interval);
 
 // create processor obj 
 const processor = new Processor()
-
+const mempool = new Mempool()
 // tokens for which operator is accepting transactions
 // to be dynamically fetched from contract
 const allowedTokens = [0, 10, 20]
@@ -41,7 +43,10 @@ app.post("/submitTx", async function (req, res) {
   var amount = req.body.amount;
   var tokenType = req.body.tokenType;
   var signature = req.body.signature;
-  var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType)
+
+  var R = signature.R8.split(",")
+
+  var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType, R[0], R[1], signature.S)
   // send tx to tx_pool
   await addtoqueue(await utils.getConn(), tx.serialise());
   logger.debug("Added tx to queue")
@@ -67,24 +72,6 @@ app.post("/sign", async function (req, res) {
   })
 })
 
-function connToDB() {
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'astrokick'
-  });
-
-  connection.connect(function (err) {
-    if (err) {
-      console.error('error connecting: ' + err.stack);
-      return;
-    }
-
-    console.log('connected as id ' + connection.threadId);
-  });
-}
-
-
 // add transaction to queue
 async function addtoqueue(conn, tx) {
   var ch = await conn.createChannel();
@@ -96,7 +83,9 @@ async function addtoqueue(conn, tx) {
 
 // start api server 
 app.listen(global.gConfig.port, () => {
+  DB.AddGenesisState()
   processor.start(poller)
+  mempool.StartSync()
   logger.info(
     "Started listening for transactions", { port: global.gConfig.port })
 });

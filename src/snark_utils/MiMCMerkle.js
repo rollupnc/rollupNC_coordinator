@@ -1,5 +1,5 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
-
+import BigInt from 'big-integer'
 module.exports = {
 
     getProof: function (leafIdx, tree, leaves) {
@@ -59,11 +59,9 @@ module.exports = {
 
     treeFromLeafArray: function (leafArray) {
         var depth = module.exports.getBase2Log(leafArray.length);
-        console.log("Depth", depth, leafArray.length)
         var tree = Array(depth);
-
         tree[depth - 1] = module.exports.pairwiseHash(leafArray)
-        console.log("valye of j", j)
+
         for (var j = depth - 2; j >= 0; j--) {
             tree[j] = module.exports.pairwiseHash(tree[j + 1])
         }

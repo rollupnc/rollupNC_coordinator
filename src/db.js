@@ -5,13 +5,17 @@ import utils from './utils'
 import logger from './logger'
 import knex from '../DB/dbClient'
 
+const bigInt = require("snarkjs").bigInt;
+// const stringifyBigInts = require("snarkjs").stringifyBigInts;
 
+// const unstringifyBigInts = require("snarkjs").unstringifyBigInts;
 
 async function getTxCount() {
   var count = await knex('tx').count()
   return count
 }
 
+// TODO delete selected transactions 
 async function getMaxTxs() {
   var res = await knex.select('*').from('tx').limit(global.gConfig.txs_per_snark);
   return res

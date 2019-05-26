@@ -36,7 +36,7 @@ module.exports = {
                     leafArray[i]['amount'].toString(),
                     leafArray[i]['token_type'].toString()
                 ])
-                txLeafHashArray.push(leafHash)
+                txLeafHashArray.push(leafHash.toString())
             }
             return txLeafHashArray
         } else {

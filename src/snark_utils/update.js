@@ -50,15 +50,11 @@ module.exports = {
         const txArray = txLeaf.generateTxLeafArray(
             from_x, from_y, to_x, to_y, amounts, tx_token_types
         )
-
         const txLeafHashes = txLeaf.hashTxLeafArray(txArray)
         const txTree = merkle.treeFromLeafArray(txLeafHashes)
         const txRoot = merkle.rootFromLeafArray(txLeafHashes)
-
         const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashes)
-        console.log("balance receiver ", balanceLeafArrayReceiver)
         var balanceLeafHashArrayReceiver = balance.hashBalanceLeafArray(balanceLeafArrayReceiver)
-
         var balanceTreeReceiver = merkle.treeFromLeafArray(balanceLeafHashArrayReceiver)
         const originalState = merkle.rootFromLeafArray(balanceLeafHashArrayReceiver)
 
@@ -78,7 +74,7 @@ module.exports = {
             toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx[k], tx_depth)
 
             fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
-
+            console.log("calling processTx for index", k)
             var output = module.exports.processTx(
                 k, txArray, txProofs[k], signatures[k], txRoot,
                 from_accounts_idx[k], to_accounts_idx[k], balanceLeafArrayReceiver,
@@ -155,7 +151,7 @@ module.exports = {
         var fromLeafHash = balance.hashBalanceLeafArray([fromLeaf])[0] // hash of sender acct
         const toLeaf = balanceLeafArray[toLeafIdx] //receiver account
         var toLeafHash = balance.hashBalanceLeafArray([toLeaf])[0] //hash of receiver acct
-
+        console.log("values sent to verify proof", txLeafHash, txIdx, txProof, txRoot)
         //check tx existence
         assert(merkle.verifyProof(txLeafHash, txIdx, txProof, txRoot))
 
@@ -172,7 +168,7 @@ module.exports = {
         assert(merkle.verifyProof(fromLeafHash, fromLeafIdx, fromProof, oldBalanceRoot))
 
         // // check receiver existence in original root
-        // assert(merkle.verifyProof(toLeafHash, toLeafIdx, toProof, oldBalanceRoot))
+        assert(merkle.verifyProof(toLeafHash, toLeafIdx, toProof, oldBalanceRoot))
 
         // get new leaves
         let newFromLeaf

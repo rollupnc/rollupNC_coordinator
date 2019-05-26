@@ -51,6 +51,7 @@ async function fetchTxs() {
     transaction["signature"] = utils.toSignature(tx.R1, tx.R2, tx.S)
     transactions.push(transaction)
   });
+  console.log("accounts here", await db.getAllAccounts())
   createProof(transactions)
   return;
 }

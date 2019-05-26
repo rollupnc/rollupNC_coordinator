@@ -43,9 +43,7 @@ app.post("/submitTx", async function (req, res) {
   var amount = req.body.amount;
   var tokenType = req.body.tokenType;
   var signature = req.body.signature;
-
   var R = signature.R8.split(",")
-
   var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType, R[0], R[1], signature.S)
   // send tx to tx_pool
   await addtoqueue(await utils.getConn(), tx.serialise());

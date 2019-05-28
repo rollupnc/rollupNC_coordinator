@@ -1,5 +1,5 @@
 import config from '../config/config.js';
-import knex from '../DB/dbClient'
+import knex from '../DB/dbClient.js'
 
 
 // class transaction

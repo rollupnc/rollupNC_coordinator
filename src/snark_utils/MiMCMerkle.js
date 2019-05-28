@@ -1,5 +1,5 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
-import BigInt from 'big-integer'
+const bigInt = require('snarkjs').bigInt
 module.exports = {
 
     getProof: function (leafIdx, tree, leaves) {
@@ -22,13 +22,13 @@ module.exports = {
         var depth = merkle_path.length
         var merkle_path_pos = module.exports.idxToBinaryPos(idx, depth)
         var root = new Array(depth);
-        var left = BigInt(leaf) - BigInt(merkle_path_pos[0]) * (BigInt(leaf) - BigInt(merkle_path[0]));
-        var right = BigInt(merkle_path[0]) - BigInt(merkle_path_pos[0]) * (BigInt(merkle_path[0]) - BigInt(leaf));
+        var left = bigInt(leaf) - bigInt(merkle_path_pos[0]) * (bigInt(leaf) - bigInt(merkle_path[0]));
+        var right = bigInt(merkle_path[0]) - bigInt(merkle_path_pos[0]) * (bigInt(merkle_path[0]) - bigInt(leaf));
         root[0] = mimcjs.multiHash([left, right]);
         var i;
         for (i = 1; i < depth; i++) {
-            left = root[i - 1] - BigInt(merkle_path_pos[i]) * (root[i - 1] - BigInt(merkle_path[i]));
-            right = BigInt(merkle_path[i]) - BigInt(merkle_path_pos[i]) * (BigInt(merkle_path[i]) - root[i - 1]);
+            left = root[i - 1] - bigInt(merkle_path_pos[i]) * (root[i - 1] - bigInt(merkle_path[i]));
+            right = bigInt(merkle_path[i]) - bigInt(merkle_path_pos[i]) * (bigInt(merkle_path[i]) - root[i - 1]);
             root[i] = mimcjs.multiHash([left, right]);
         }
         return root[depth - 1];

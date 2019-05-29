@@ -5,6 +5,8 @@ const merkle = require("./MiMCMerkle.js");
 const balance = require("./generate_balance_leaf.js");
 const tx = require("./generate_tx_leaf.js")
 var assert = require('assert');
+const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
+const bigInt = require('snarkjs').bigInt
 
 const NONCE_MAX_VALUE = 100;
 
@@ -83,11 +85,11 @@ module.exports = {
 
             intermediateRoots[2 * k + 1] = output['newRootSender'];
             intermediateRoots[2 * k + 2] = output['newRootReceiver'];
-            balanceTreeSender = output['newTreeSender'];
+            var balanceTreeSender = output['newTreeSender'];
             balanceTreeReceiver = output['newTreeReceiver'];
 
-            balanceLeafArraySender = output['newLeafArraySender'];
-            balanceLeafHashArraySender = output['newLeafHashArraySender'];
+            var balanceLeafArraySender = output['newLeafArraySender'];
+            var balanceLeafHashArraySender = output['newLeafHashArraySender'];
             balanceLeafArrayReceiver = output['newLeafArrayReceiver'];
             balanceLeafHashArrayReceiver = output['newLeafHashArrayReceiver'];
 
@@ -116,16 +118,16 @@ module.exports = {
             R8y: module.exports.stringifyArray(R8yArray),
             S: module.exports.stringifyArray(SArray),
 
-            nonce_from: nonceFromArray,
+            nonce_from: nonceFromArray.map(Number),
             to_x: module.exports.stringifyArray(to_x),
             to_y: module.exports.stringifyArray(to_y),
-            nonce_to: nonceToArray,
-            amount: amounts,
+            nonce_to: nonceToArray.map(Number),
+            amount: amounts.map(Number),
 
-            token_balance_from: tokenBalanceFromArray,
+            token_balance_from: tokenBalanceFromArray.map(Number),
             token_balance_to: tokenBalanceToArray,
-            token_type_from: tokenTypeFromArray,
-            token_type_to: tokenTypeToArray
+            token_type_from: tokenTypeFromArray.map(Number),
+            token_type_to: tokenTypeToArray.map(Number)
 
         }
 
@@ -151,7 +153,6 @@ module.exports = {
         var fromLeafHash = balance.hashBalanceLeafArray([fromLeaf])[0] // hash of sender acct
         const toLeaf = balanceLeafArray[toLeafIdx] //receiver account
         var toLeafHash = balance.hashBalanceLeafArray([toLeaf])[0] //hash of receiver acct
-        console.log("values sent to verify proof", txLeafHash, txIdx, txProof, txRoot)
         //check tx existence
         assert(merkle.verifyProof(txLeafHash, txIdx, txProof, txRoot))
 
@@ -168,7 +169,7 @@ module.exports = {
         assert(merkle.verifyProof(fromLeafHash, fromLeafIdx, fromProof, oldBalanceRoot))
 
         // // check receiver existence in original root
-        assert(merkle.verifyProof(toLeafHash, toLeafIdx, toProof, oldBalanceRoot))
+        // assert(merkle.verifyProof(toLeafHash, toLeafIdx, toProof, oldBalanceRoot))
 
         // get new leaves
         let newFromLeaf
@@ -218,17 +219,28 @@ module.exports = {
         var newToLeaf = Object.assign(toLeafCopy, toLeaf)
 
         newFromLeaf['balance'] = newFromLeaf['balance'] - tx['amount']
-        newFromLeaf['nonce'] = newFromLeaf['nonce'] + 1
+        newFromLeaf['nonce'] = parseInt(newFromLeaf['nonce'] + 1)
+
 
         if (!account.isZeroAddress(toLeaf['pubKey_x'], toLeaf['pubKey_y'])) {
-            newToLeaf['balance'] = newToLeaf['balance'] + tx['amount']
+            newToLeaf['balance'] = parseInt(newToLeaf['balance'] + tx['amount'])
         }
         return [newFromLeaf, newToLeaf]
     },
 
     checkSignature: function (tx, fromLeaf, signature) {
-        assert(eddsa.verifyMiMC(txLeaf.hashTxLeafArray([tx]), signature,
-            [fromLeaf['pubKey_x'], fromLeaf['pubKey_y']]))
+        if (signature.S[signature.S.length - 1] == 'n'){
+            signature.S =  signature.S.slice(0, signature.S.length-1);
+        }
+        assert(
+            eddsa.verifyMiMC(
+                unstringifyBigInts(txLeaf.hashTxLeafArray([tx])), 
+                unstringifyBigInts(signature),
+                unstringifyBigInts(
+                [fromLeaf['pubKey_x'], 
+                fromLeaf['pubKey_y']])
+            )
+        )
     },
 
     checkBalances: function (tx, fromLeaf, toLeaf) {

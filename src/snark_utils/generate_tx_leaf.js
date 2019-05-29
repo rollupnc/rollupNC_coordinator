@@ -1,6 +1,7 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
 const account = require("./generate_accounts.js");
 const eddsa = require("../../circomlib/src/eddsa.js");
+const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 
 module.exports = {
 
@@ -24,10 +25,10 @@ module.exports = {
 
     },
 
-    hashTxLeafArray: function (leafArray) {
-        if (Array.isArray(leafArray)) {
+    hashTxLeafArray: function(leafArray){
+        if (Array.isArray(leafArray)){
             var txLeafHashArray = [];
-            for (var i = 0; i < leafArray.length; i++) {
+            for (var i = 0; i < leafArray.length; i++){
                 var leafHash = mimcjs.multiHash([
                     leafArray[i]['from_x'].toString(),
                     leafArray[i]['from_y'].toString(),
@@ -36,7 +37,7 @@ module.exports = {
                     leafArray[i]['amount'].toString(),
                     leafArray[i]['token_type'].toString()
                 ])
-                txLeafHashArray.push(leafHash.toString())
+                txLeafHashArray.push(leafHash)
             }
             return txLeafHashArray
         } else {
@@ -76,7 +77,12 @@ module.exports = {
     getSignaturesS: function (signatures) {
         var SArray = new Array(signatures.length)
         for (var i = 0; i < signatures.length; i++) {
-            SArray[i] = signatures[i]['S']
+            var S = signatures[i]['S']
+            if (S[S.length - 1] == 'n'){
+                SArray[i] =  S.slice(0, S.length-1);
+            } else {
+                SArray[i] = S
+            }
         }
         return SArray
     }

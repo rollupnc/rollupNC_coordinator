@@ -1,5 +1,5 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
-const bigInt = require("snarkjs").bigint;
+const bigInt = require("snarkjs").bigInt;
 
 module.exports = {
 
@@ -58,16 +58,16 @@ module.exports = {
     },
 
     treeFromLeafArray: function (leafArray) {
-        console.log("generating tree from leaf array")
+        // console.log("generating tree from leaf array")
         var depth = module.exports.getBase2Log(leafArray.length);
         var tree = Array(depth);
         tree[depth - 1] = module.exports.pairwiseHash(leafArray)
 
         for (var j = depth - 2; j >= 0; j--) {
-            console.log("Iteration", j)
+            // console.log("Iteration", j)
             tree[j] = module.exports.pairwiseHash(tree[j + 1])
         }
-        console.log("final merkel tree", tree.length)
+        // console.log("final merkle tree", tree.length)
 
         // return treeRoot[depth-1]
         return tree
@@ -78,7 +78,7 @@ module.exports = {
     },
 
     pairwiseHash: function (array) {
-        console.log("generating pairwise hash", array.length)
+        // console.log("generating pairwise hash", array.length)
         if (array.length % 2 == 0) {
             var arrayHash = []
             for (var i = 0; i < array.length; i = i + 2) {

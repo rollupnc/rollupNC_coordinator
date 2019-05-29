@@ -5,8 +5,8 @@ module.exports = {
 
     getZeroLeaf: function () {
         var zeroLeaf = {};
-        zeroLeaf['pubKey_x'] = BigInt("0".padStart(76, '0'));
-        zeroLeaf['pubKey_y'] = BigInt("0".padStart(77, '0'));
+        zeroLeaf['pubKey_x'] = bigInt("0".padStart(76, '0'));
+        zeroLeaf['pubKey_y'] = bigInt("0".padStart(77, '0'));
         zeroLeaf['balance'] = 0;
         zeroLeaf['nonce'] = 0;
         zeroLeaf['token_type'] = 0;

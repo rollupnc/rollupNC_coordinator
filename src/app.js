@@ -40,14 +40,14 @@ app.post("/submitTx", async function (req, res) {
   var fromY = req.body.fromY;
   var toX = req.body.toX;
   var toY = req.body.toY;
-  var amount = req.body.amount;
-  var tokenType = req.body.tokenType;
+  var amount = parseInt(req.body.amount);
+  var tokenType = parseInt(req.body.tokenType);
   var signature = req.body.signature;
   var R = signature.R8.split(",")
   var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType, R[0], R[1], signature.S)
   // send tx to tx_pool
   await addtoqueue(await utils.getConn(), tx.serialise());
-  logger.debug("Added tx to queue")
+  // logger.debug("Added tx to queue")
   res.json({ message: "Success" });
 });
 
@@ -64,7 +64,7 @@ app.post("/sign", async function (req, res) {
     req.body.privKey.padStart(64, '0'), "hex");
   var hash = utils.toMultiHash(req.body.fromX, req.body.fromY, req.body.toX, req.body.toY, req.body.amount, req.body.tokenType)
   signature = eddsa.signMiMC(prvKey, hash);
-  logger.debug("Signature generated", { sig: signature.R8.toString() })
+  // logger.debug("Signature generated", { sig: signature.R8.toString() })
   res.json({
     signature: { "R8": signature.R8.toString(), "S": signature.S.toString() }
   })
@@ -74,7 +74,7 @@ app.post("/sign", async function (req, res) {
 async function addtoqueue(conn, tx) {
   var ch = await conn.createChannel();
   var result = await ch.assertQueue(q, { durable: true });
-  logger.debug("Adding new message to queue", { queueDetails: result, tx: tx.toString() });
+  // logger.debug("Adding new message to queue", { queueDetails: result, tx: tx.toString() });
   await ch.sendToQueue(q, Buffer.from(tx.toString()), { persistent: true });
   return;
 }

@@ -1,7 +1,7 @@
 
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('accounts', function (t) {
-    t.increments('id');
+    t.integer('index').notNullable()
     t.string('pubkeyX').notNullable()
     t.string('pubkeyY').notNullable()
     t.integer('balance').notNullable()

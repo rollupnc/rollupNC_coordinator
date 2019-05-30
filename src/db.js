@@ -1,9 +1,9 @@
 import config from '../config/config.js';
-import Account from './account';
+import Account from './account.js';
 import fs from 'fs'
-import utils from './utils'
-import logger from './logger'
-import knex from '../DB/dbClient'
+import utils from './utils.js'
+import logger from './logger.js'
+import knex from '../DB/dbClient.js'
 
 const bigInt = require("snarkjs").bigInt;
 // const stringifyBigInts = require("snarkjs").stringifyBigInts;

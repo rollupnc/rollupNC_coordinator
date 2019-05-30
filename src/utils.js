@@ -196,7 +196,7 @@ function JSON2Tx(data) {
 
 // read genesis file 
 async function readGenesis() {
-  var contents = await fs.readFileAsync(genPath)
+  var contents = await fs.readFileSync(genPath)
   var genesisJSON = JSON.parse(contents)
   return genesisJSON;
 }

@@ -219,11 +219,11 @@ module.exports = {
         var newToLeaf = Object.assign(toLeafCopy, toLeaf)
 
         newFromLeaf['balance'] = newFromLeaf['balance'] - tx['amount']
-        newFromLeaf['nonce'] = parseInt(newFromLeaf['nonce'] + 1)
+        newFromLeaf['nonce'] = parseInt(newFromLeaf['nonce']) + 1
 
 
         if (!account.isZeroAddress(toLeaf['pubKey_x'], toLeaf['pubKey_y'])) {
-            newToLeaf['balance'] = parseInt(newToLeaf['balance'] + tx['amount'])
+            newToLeaf['balance'] = parseInt(newToLeaf['balance']) + parseInt(tx['amount'])
         }
         return [newFromLeaf, newToLeaf]
     },

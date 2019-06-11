@@ -9,6 +9,7 @@
     "create-DB": "node DB/createDB.js",
     "migration": "knex migrate:latest --knexfile=DB/knexfile.js",
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",
+    "send-tx": "babel-node src/sendTestRequests.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",

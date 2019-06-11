@@ -1,6 +1,6 @@
 import request from 'request';
 import Transaction from './transaction.js';
-
+import Poller from './poller.js';
 
 const url = "http://localhost:3000/submitTx";
 
@@ -57,7 +57,21 @@ const Zero = {
     X: 0,
     Y: 0,
 }
-submitTx(Alice, Bob, 500, 0)
-submitTx(Bob, Zero, 500, 10)
-submitTx(Alice, Charlie, 500, 10)
-submitTx(Charlie, Bob, 250, 10)
+// submitTx(Alice, Bob, 500, 0)
+// submitTx(Bob, Zero, 500, 10)
+// submitTx(Alice, Charlie, 500, 10)
+// submitTx(Charlie, Bob, 250, 10)
+
+var sender = Alice;
+var receiver = Bob;
+var tmp;
+
+const poller = new Poller(1000);
+poller.poll()
+poller.onPoll(() => {
+    submitTx(sender, receiver, 500, 0)
+    tmp = sender
+    sender = receiver
+    receiver = tmp;
+    poller.poll()
+})

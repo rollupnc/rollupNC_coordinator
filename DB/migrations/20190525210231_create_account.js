@@ -7,6 +7,7 @@ exports.up = function (knex, Promise) {
     t.integer('balance').notNullable()
     t.integer('nonce').notNullable()
     t.integer('tokenType').notNullable()
+    t.unique('pubkeyX')
   })
 };
 

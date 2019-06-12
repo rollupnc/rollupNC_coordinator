@@ -21,6 +21,11 @@ async function getMaxTxs() {
   return res
 }
 
+async function getNonce(pubkeyX, pubkeyY) {
+  var res = await knex.select('nonce').from('accounts').where({ pubkeyX, pubkeyY}).first();
+  return res;
+}
+
 // genesis state of co-ordinator 
 async function AddGenesisState() {
   var genesis = await utils.readGenesis()
@@ -51,6 +56,7 @@ async function getAllAccounts() {
 export default {
   getTxCount,
   getMaxTxs,
+  getNonce,
   getAllAccounts,
   AddGenesisState
 }

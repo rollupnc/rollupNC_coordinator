@@ -4,12 +4,17 @@ import utils from './utils.js';
 
 // class transaction
 export default class Transaction {
-  constructor(_fromX, _fromY, _toX, _toY, _amount, _tokenType, R1, R2, S) {
+  constructor(
+    _fromX, _fromY, _toX, _toY, _nonce, _amount, _tokenType, 
+    R1, R2, S
+  ) {
     this.fromX = _fromX;
     this.fromY = _fromY;
 
     this.toX = _toX;
     this.toY = _toY;
+
+    this.nonce = _nonce;
 
     this.amount = _amount
     this.tokenType = _tokenType;
@@ -29,6 +34,7 @@ export default class Transaction {
       this.fromY,
       this.toX,
       this.toY,
+      this.nonce,
       this.amount,
       this.tokenType,
     );
@@ -45,6 +51,7 @@ export default class Transaction {
       fromY: this.fromY,
       toX: this.toX,
       toY: this.toY,
+      nonce: this.nonce,
       tokenType: this.tokenType,
       amount: this.amount,
       R1: this.R1,
@@ -66,6 +73,7 @@ export default class Transaction {
       fromY: this.fromY,
       toX: this.toX,
       toY: this.toY,
+      nonce: this.nonce,
       tokenType: this.tokenType,
       amount: this.amount,
       R1: this.R1,
@@ -83,8 +91,8 @@ export default class Transaction {
   // utils methods
   //
 
-  // checks if tx is dependant or not
-  _isDependant() {
+  // checks if tx is dependent or not
+  _isDependent() {
     // check and return true/false
   }
 

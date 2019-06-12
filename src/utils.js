@@ -9,7 +9,9 @@ import tx from "./snark_utils/generate_tx_leaf.js"
 import update from "./snark_utils/update.js"
 import Transaction from './transaction.js';
 const {stringifyBigInts, unstringifyBigInts} = require('./snark_utils/stringifybigint.js')
-
+const websnark = require('./snark_utils/websnark.js')
+const snarkHelper = require('./snark_utils/snark_helper.js')
+const circuit = require('../snark/circuit.json')
 
 import path from 'path'
 import Promise from 'bluebird';
@@ -102,7 +104,14 @@ async function prepTxs(txs) {
     tokenTypes,
     signatures
   )
-  console.log("input generated", inputs)
+  // console.log("input generated", inputs)
+  // const witness = snarkHelper.calculateWitness(circuit, inputs)
+  // websnark.genZKSnarkProof(witness, provingKey).then((p)=> {
+  //   this.p = p
+  //   console.log(p)
+  //   var call = snarkHelper.generateCall(p)
+  //   console.log("call", call)            
+  // })
 }
 
 // async function prepTxs(txs) {

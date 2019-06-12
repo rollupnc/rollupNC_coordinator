@@ -1,20 +1,10 @@
-
-import express from 'express'
-import Processor from './processor.js';
+import express from 'express';
 import bodyParser from 'body-parser';
-import Poller from './poller';
-import config from '../config/config.js';
 import utils from './utils'
 import eddsa from '../circomlib/src/eddsa.js';
 import logger from './logger';
 import Transaction from './transaction.js';
-import mysql from 'mysql';
-import Mempool from './mempool.js';
-import DB from './db'
-import events from './events';
-const bigInt = require("snarkjs").bigInt;
 
-process.env.NODE_ENV = "development";
 // create express obj 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,20 +12,6 @@ app.use(bodyParser.json());
 
 // define queue 
 const q = global.gConfig.tx_queue;
-const maxTxs = global.gConfig.txs_per_snark;
-
-// create poller obj 
-const poller = new Poller(global.gConfig.poll_interval);
-
-// create processor obj 
-const processor = new Processor()
-const mempool = new Mempool()
-// tokens for which operator is accepting transactions
-// to be dynamically fetched from contract
-const allowedTokens = [0, 10, 20]
-
-
-events();
 
 //receives all transactions
 app.post("/submitTx", async function (req, res) {
@@ -82,22 +58,4 @@ async function addtoqueue(conn, tx) {
   return;
 }
 
-// start api server 
-app.listen(global.gConfig.port, () => {
-  DB.AddGenesisState()
-  processor.start(poller)
-  mempool.StartSync()
-  logger.info(
-    "Started listening for transactions", { port: global.gConfig.port })
-});
-
-// handle interruption
-process.on("SIGINT", async () => {
-  console.log("Received interruption stopping receiver...");
-  process.exit();
-});
-
-// check for unhandledRejection
-process.on("unhandledRejection", (reason, p) => {
-  console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
-});
+export default app;

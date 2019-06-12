@@ -1,0 +1,42 @@
+version: 2.0
+jobs:
+  core_test:
+    working_directory: ~/repo
+    docker:
+    - image: circleci/node:10.16.0
+    - image: mysql:5
+      environment:
+        MYSQL_ROOT_PASSWORD: "123"
+    - image: rabbitmq:3.7
+    steps:
+      - checkout
+      - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule init
+            git submodule update --remote
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: setup-config
+          command: 'cp ./config/config-sample.json ./config/config.json'
+      - run:
+          name: create-DB
+          command: 'npm run create-DB'
+      - run:
+          command: 'npm run test'
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - core_test

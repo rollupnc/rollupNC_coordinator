@@ -2,17 +2,6 @@ import request from 'supertest';
 import app from '../src/app'
 
 describe('Relayer API', () => {
-    // var server
-
-    // beforeEach(function () {
-    //     const makeServer = require("../src/server.js");
-    //     server = makeServer()
-    // });
-
-    // afterEach(function (done) {
-    //     server.close(done);
-    // });
-
     describe('GET /submitTx', () => {
         it('should accept', (done) => {
             request(app)
@@ -32,10 +21,10 @@ describe('Relayer API', () => {
                     }
                 )
                 .expect(200)
-                .end(function(err, res) {
-                    if (err) done(err);
-                    else done()
-                  });
+                .end(function (err) {
+                    if (err) return done(err);
+                    done();
+                });
         })
     })
 })

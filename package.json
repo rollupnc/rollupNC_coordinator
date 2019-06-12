@@ -5,12 +5,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "coordinator": "babel-node src/app.js",
+    "coordinator": "babel-node src/index.js",
     "create-DB": "node DB/createDB.js",
     "migration": "knex migrate:latest --knexfile=DB/knexfile.js",
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",
     "send-tx": "babel-node src/sendTestRequests.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": " ./node_modules/mocha/bin/mocha --require babel-core/register --require babel-polyfill --exit"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
   "license": "ISC",
@@ -47,5 +47,9 @@
     "web3": "^1.0.0-beta.36",
     "web3-utils": "^1.0.0-beta.52",
     "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.4",
+    "supertest": "^4.0.2"
   }
 }

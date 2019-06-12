@@ -78,7 +78,6 @@ module.exports = {
     },
 
     pairwiseHash: function (array) {
-        // console.log("generating pairwise hash", array.length)
         if (array.length % 2 == 0) {
             var arrayHash = []
             for (var i = 0; i < array.length; i = i + 2) {

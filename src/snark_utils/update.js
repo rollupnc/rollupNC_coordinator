@@ -9,6 +9,15 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 const bigInt = require('snarkjs').bigInt
 
 const NONCE_MAX_VALUE = 100;
+const ZERO_HASH = '\x00'.repeat(32);
+
+function pad(array, max_length) {
+    if (array.length > max_length) {
+        throw new Error(`Length of input array ${array.length} is longer than max_length ${max_length}`);
+    }
+    const zero_hash_array = new Array(max_length - array.length).fill(ZERO_HASH);
+    return array.concat(zero_hash_array)
+}
 
 module.exports = {
 
@@ -52,7 +61,7 @@ module.exports = {
         const txArray = txLeaf.generateTxLeafArray(
             from_x, from_y, to_x, to_y, amounts, tx_token_types
         )
-        const txLeafHashes = txLeaf.hashTxLeafArray(txArray)
+        const txLeafHashes = pad(txLeaf.hashTxLeafArray(txArray), 2 ** tx_depth)
         const txTree = merkle.treeFromLeafArray(txLeafHashes)
         const txRoot = merkle.rootFromLeafArray(txLeafHashes)
         const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashes)

@@ -11,6 +11,7 @@ import Transaction from './transaction.js';
 import mysql from 'mysql';
 import Mempool from './mempool.js';
 import DB from './db'
+import events from './events';
 const bigInt = require("snarkjs").bigInt;
 
 process.env.NODE_ENV = "development";
@@ -33,6 +34,8 @@ const mempool = new Mempool()
 // to be dynamically fetched from contract
 const allowedTokens = [0, 10, 20]
 
+
+events();
 
 //receives all transactions
 app.post("/submitTx", async function (req, res) {

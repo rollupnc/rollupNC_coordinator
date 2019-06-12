@@ -4,6 +4,7 @@ import logger from './logger';
 import Mempool from './mempool.js';
 import DB from './db';
 import app from './app';
+import events from './events';
 
 process.env.NODE_ENV = "development";
 
@@ -20,6 +21,7 @@ const server = app.listen(global.gConfig.port, () => {
     DB.AddGenesisState()
     processor.start(poller)
     mempool.StartSync()
+    events();
     logger.info(
         "Started listening for transactions", { port: global.gConfig.port })
 });

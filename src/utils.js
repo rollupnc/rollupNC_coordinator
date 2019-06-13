@@ -9,7 +9,7 @@ import tx from "./snark_utils/generate_tx_leaf.js"
 import update from "./snark_utils/update.js"
 import Transaction from './transaction.js';
 const {stringifyBigInts, unstringifyBigInts} = require('./snark_utils/stringifybigint.js')
-const websnark = require('./snark_utils/websnark.js')
+// const websnark = require('./snark_utils/websnark.js')
 const snarkHelper = require('./snark_utils/snark_helper.js')
 const circuit = require('../snark/circuit.json')
 
@@ -36,9 +36,39 @@ async function getConn() {
 }
 
 // convert a leaf to multiHash hash 
-function toMultiHash(fromX, fromY, toX, toY, amount, token) {
+function toMultiHash(fromX, fromY, toX, toY, nonce, amount, token) {
+  console.log('trying to hash',
+  [
+    fromX.toString(),
+    fromY.toString(),
+    toX.toString(),
+    toY.toString(),
+    'nonce', nonce.toString(),
+    amount.toString(),
+    token.toString()
+    // bigInt(fromX), 
+    // bigInt(fromY), 
+    // bigInt(toX), 
+    // bigInt(toY), 
+    // bigInt(nonce),
+    // bigInt(amount), 
+    // bigInt(token)
+  ])
   var leafHash = mimcjs.multiHash([
-    bigInt(fromX), bigInt(fromY), bigInt(toX), bigInt(toY), bigInt(amount), bigInt(token)
+    fromX.toString(),
+    fromY.toString(),
+    toX.toString(),
+    toY.toString(),
+    nonce.toString(),
+    amount.toString(),
+    token.toString()
+    // bigInt(fromX), 
+    // bigInt(fromY), 
+    // bigInt(toX), 
+    // bigInt(toY), 
+    // bigInt(nonce),
+    // bigInt(amount), 
+    // bigInt(token)
   ])
   return leafHash
 }
@@ -61,8 +91,11 @@ function toSignature(R1, R2, S) {
 async function getTransactionArray(txs) {
   var fromX = new Array()
   var fromY = new Array()
+  var fromIndices = new Array()
   var toX = new Array()
   var toY = new Array()
+  var toIndices = new Array()
+  var nonces = new Array()
   var tokenTypes = new Array()
   var amounts = new Array()
   var signatures = new Array()
@@ -72,8 +105,12 @@ async function getTransactionArray(txs) {
     // logger.debug("traversing", { index: i, len: txs.length, transaction: txs[i] })
     fromX.push(txs[i].fromX)
     fromY.push(txs[i].fromY)
+    fromIndices.push(txs[i].fromIndex)
     toX.push(txs[i].toX)
     toY.push(txs[i].toY)
+    toIndices.push(txs[i].toIndex)
+    // collect nonces
+    nonces.push(txs[i].nonce)
     // collect amounts
     amounts.push(txs[i].amount)
     // collect token types
@@ -81,25 +118,32 @@ async function getTransactionArray(txs) {
     // collect sigs
     signatures.push(txs[i].signature)
   }
-  return [fromX, fromY, toX, toY, tokenTypes, signatures, amounts]
+  console.log('===========================================================================================fromIndices', fromIndices)
+  console.log('toIndices', toIndices)
+  return [
+    fromX, fromY, fromIndices, toX, toY, toIndices, 
+    nonces, tokenTypes, signatures, amounts
+  ]
 }
 
 async function prepTxs(txs) {
-  var [fromX, fromY, toX, toY, tokenTypes, signatures, amounts] = await getTransactionArray(txs)
-  const txArray = await tx.generateTxLeafArray(fromX, fromY, toX, toY, amounts, tokenTypes)
+  var [
+    fromX, fromY, fromIndices, toX, toY, toIndices, 
+    nonces, tokenTypes, signatures, amounts
+  ] = await getTransactionArray(txs)
+  const txArray = await tx.generateTxLeafArray(fromX, fromY, toX, toY, nonces, amounts, tokenTypes)
 
   var accountsArray = await db.getAllAccounts()
-  var from_accounts_idx = [1, 2, 1, 3]
-  var to_accounts_idx = [2, 0, 3, 2]
   const inputs = update.processTxArray(
     TX_DEPTH,
     fromX,
     fromY,
     toX,
     toY,
+    nonces,
     accountsArray,
-    from_accounts_idx,
-    to_accounts_idx,
+    fromIndices,
+    toIndices,
     amounts,
     tokenTypes,
     signatures
@@ -198,7 +242,8 @@ async function prepTxs(txs) {
 function JSON2Tx(data) {
   var txData = JSON.parse(data)[0]
   return new Transaction(txData.fromX, txData.fromY, txData.toX,
-    txData.toY, txData.amount, txData.tokenType, txData.R1, txData.R2, txData.S)
+    txData.toY, txData.nonce, txData.amount, txData.tokenType, 
+    txData.R1, txData.R2, txData.S)
 }
 
 // read genesis file 

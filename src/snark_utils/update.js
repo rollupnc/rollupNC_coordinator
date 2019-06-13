@@ -9,15 +9,36 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 const bigInt = require('snarkjs').bigInt
 
 const NONCE_MAX_VALUE = 100;
-const ZERO_HASH = '\x00'.repeat(32);
+var PAD_NONCE = 0;
+// const ZERO_HASH = '\x00'.repeat(32);
 
-function pad(array, max_length) {
-    if (array.length > max_length) {
-        throw new Error(`Length of input array ${array.length} is longer than max_length ${max_length}`);
+function pad(leafArray, leafHashArray, signaturesArray, from_accts_idx, to_accts_idx, max_length){
+    if (leafArray.length > max_length) {
+        throw new Error(`Length of input array ${leafArray.length} is longer than max_length ${max_length}`);
     }
-    const zero_hash_array = new Array(max_length - array.length).fill(ZERO_HASH);
-    return array.concat(zero_hash_array)
+    const prvKey = account.coordinatorPrvKey()
+    const pubKey = account.coordinatorPubKey()
+    const arrayLength = leafArray.length
+
+    for (var i = 0; i < (max_length - arrayLength); i++){
+        var empty_tx = txLeaf.generateTxLeaf(
+            pubKey[0], pubKey[1], pubKey[0], pubKey[1], 
+            PAD_NONCE, 0, 0
+        )
+        var empty_tx_hash = txLeaf.hashTxLeaf(empty_tx)
+        var signature = eddsa.signMiMC(prvKey, empty_tx_hash)
+
+        leafArray.push(empty_tx)
+        leafHashArray.push(empty_tx_hash)
+        signaturesArray.push(signature)
+        from_accts_idx.push(1)
+        to_accts_idx.push(1)
+        PAD_NONCE++;
+
+    }
+    return [leafArray, leafHashArray, signaturesArray, from_accts_idx, to_accts_idx]
 }
+
 
 module.exports = {
 
@@ -27,7 +48,7 @@ module.exports = {
         from_y,
         to_x,
         to_y,
-        nonce,
+        nonces,
         balanceLeafArrayReceiver,
         from_accounts_idx,
         to_accounts_idx,
@@ -35,6 +56,7 @@ module.exports = {
         tx_token_types,
         signatures,
     ) {
+
 
         var txPosArray = merkle.generateMerklePosArray(tx_depth)
 
@@ -45,10 +67,6 @@ module.exports = {
 
         var fromPosArray = new Array(2 ** tx_depth)
         var toPosArray = new Array(2 ** tx_depth)
-
-        var R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signatures))
-        var R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signatures))
-        var SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signatures))
 
         var nonceFromArray = new Array(2 ** tx_depth)
 
@@ -62,10 +80,24 @@ module.exports = {
         const txArray = txLeaf.generateTxLeafArray(
             from_x, from_y, to_x, to_y, nonces, amounts, tx_token_types
         )
-        const txLeafHashes = pad(txLeaf.hashTxLeafArray(txArray), 2 ** tx_depth)
-        const txTree = merkle.treeFromLeafArray(txLeafHashes)
-        const txRoot = merkle.rootFromLeafArray(txLeafHashes)
-        const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashes)
+        const txLeafHashes = txLeaf.hashTxLeafArray(txArray)
+        
+        const [
+            txArrayPadded, 
+            txLeafHashesPadded, 
+            signaturesPadded,
+            from_accounts_idx_padded,
+            to_accounts_idx_padded
+        ] = pad(
+                txArray, txLeafHashes, signatures, from_accounts_idx, to_accounts_idx, 2 ** tx_depth)
+        
+        var R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signaturesPadded))
+        var R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signaturesPadded))
+        var SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signaturesPadded))
+
+        const txTree = merkle.treeFromLeafArray(txLeafHashesPadded)
+        const txRoot = merkle.rootFromLeafArray(txLeafHashesPadded)
+        const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashesPadded)
         var balanceLeafHashArrayReceiver = balance.hashBalanceLeafArray(balanceLeafArrayReceiver)
         var balanceTreeReceiver = merkle.treeFromLeafArray(balanceLeafHashArrayReceiver)
         const originalState = merkle.rootFromLeafArray(balanceLeafHashArrayReceiver)
@@ -74,21 +106,22 @@ module.exports = {
 
         for (var k = 0; k < 2 ** tx_depth; k++) {
 
-            nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['nonce']
-            nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['nonce']
+            nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['nonce']
+            nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['nonce']
 
-            tokenBalanceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['balance']
-            tokenBalanceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['balance']
-            tokenTypeFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['token_type']
-            tokenTypeToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['token_type']
+            tokenBalanceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['balance']
+            tokenBalanceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['balance']
+            tokenTypeFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['token_type']
+            tokenTypeToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['token_type']
 
-            fromPosArray[k] = merkle.idxToBinaryPos(from_accounts_idx[k], tx_depth)
-            toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx[k], tx_depth)
+            fromPosArray[k] = merkle.idxToBinaryPos(from_accounts_idx_padded[k], tx_depth)
+            toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx_padded[k], tx_depth)
 
-            fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
+            fromProofs[k] = merkle.getProof(from_accounts_idx_padded[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
+            console.log("calling processTx for index", k)
             var output = module.exports.processTx(
-                k, txArray, txProofs[k], signatures[k], txRoot,
-                from_accounts_idx[k], to_accounts_idx[k], nonces[k],
+                k, txArrayPadded, txProofs[k], signaturesPadded[k], txRoot,
+                from_accounts_idx_padded[k], to_accounts_idx_padded[k], nonces[k],
                 balanceLeafArrayReceiver,
                 fromProofs[k], intermediateRoots[2 * k]
             )
@@ -242,9 +275,16 @@ module.exports = {
         if (signature.S[signature.S.length - 1] == 'n'){
             signature.S =  signature.S.slice(0, signature.S.length-1);
         }
+        console.log('cannot eddsa verify',
+            unstringifyBigInts(txLeaf.hashTxLeaf(tx)), 
+            unstringifyBigInts(signature),
+            unstringifyBigInts(
+            [fromLeaf['pubKey_x'], 
+            fromLeaf['pubKey_y']])
+        )
         assert(
             eddsa.verifyMiMC(
-                unstringifyBigInts(txLeaf.hashTxLeafArray([tx])), 
+                unstringifyBigInts(txLeaf.hashTxLeaf(tx)), 
                 unstringifyBigInts(signature),
                 unstringifyBigInts([tx.from_x, tx.from_y])
             )

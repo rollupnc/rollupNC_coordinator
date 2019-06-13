@@ -44,14 +44,17 @@ async function fetchTxs() {
     var transaction = {}
     transaction["fromX"] = tx.fromX
     transaction["fromY"] = tx.fromY
+    transaction["fromIndex"] = await db.getIndex(tx.fromX, tx.fromY)
     transaction["toX"] = tx.toX
     transaction["toY"] = tx.toY
+    transaction["toIndex"] = await db.getIndex(tx.toX, tx.toY)
+    transaction["nonce"] = tx.nonce
     transaction["amount"] = tx.amount
     transaction["tokenType"] = tx.tokenType
     transaction["signature"] = utils.toSignature(tx.R1, tx.R2, tx.S)
     transactions.push(transaction)
   });
-  console.log("accounts here", await db.getAllAccounts())
+  // console.log("accounts here", await db.getAllAccounts())
   createProof(transactions)
   return;
 }

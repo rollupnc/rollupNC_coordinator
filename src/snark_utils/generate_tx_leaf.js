@@ -5,13 +5,27 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 
 module.exports = {
 
+    generateTxLeaf: function(
+        from_x, from_y, to_x, to_y, nonce, amount, token_type
+    ){
+        var leaf = {}
+        leaf['from_x'] = from_x;
+        leaf['from_y'] = from_y;
+        leaf['to_x'] = to_x
+        leaf['to_y'] = to_y
+        leaf['nonce'] = nonce
+        leaf['amount'] = amount
+        leaf['token_type'] = token_type
+        return leaf
+    },
+
     generateTxLeafArray: function(
         from_x, from_y, to_x, to_y, nonces, amounts, token_types
     ){
         if (Array.isArray(from_x)){
-            txLeafArray = [];
+            var txLeafArray = [];
             for (var i = 0; i < from_x.length; i++){
-                leaf = {}
+                var leaf = {}
                 leaf['from_x'] = from_x[i];
                 leaf['from_y'] = from_y[i];
                 leaf['to_x'] = to_x[i];
@@ -29,11 +43,36 @@ module.exports = {
 
     },
 
+    hashTxLeaf: function(leaf){
+        console.log(
+            'trying to hash',
+            leaf['from_x'].toString(),
+            leaf['from_y'].toString(),
+            leaf['to_x'].toString(),
+            leaf['to_y'].toString(),
+            leaf['nonce'].toString(),
+            leaf['amount'].toString(),
+            leaf['token_type'].toString()
+        )
+        
+        var leafHash = mimcjs.multiHash([
+            leaf['from_x'].toString(),
+            leaf['from_y'].toString(),
+            leaf['to_x'].toString(),
+            leaf['to_y'].toString(),
+            leaf['nonce'].toString(),
+            leaf['amount'].toString(),
+            leaf['token_type'].toString()
+        ])
+        console.log('hash result', leafHash)
+        return leafHash
+    },
+
     hashTxLeafArray: function(leafArray){
         if (Array.isArray(leafArray)){
-            txLeafHashArray = [];
-            for (i = 0; i < leafArray.length; i++){
-                leafHash = mimcjs.multiHash([
+            var txLeafHashArray = [];
+            for (var i = 0; i < leafArray.length; i++){
+                var leafHash = mimcjs.multiHash([
                     leafArray[i]['from_x'].toString(),
                     leafArray[i]['from_y'].toString(),
                     leafArray[i]['to_x'].toString(),
@@ -54,7 +93,7 @@ module.exports = {
         if (Array.isArray(leafHashArray)) {
             var signatures = [];
             for (var i = 0; i < leafHashArray.length; i++) {
-                signature = eddsa.signMiMC(prvKeys[i], leafHashArray[i]);
+                 var signature = eddsa.signMiMC(prvKeys[i], leafHashArray[i]);
                 signatures.push(signature)
             }
             return signatures

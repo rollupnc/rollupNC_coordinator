@@ -69,7 +69,7 @@ module.exports = {
     },
 
     coordinatorPrvKey: function(){
-        return prvKey = Buffer.from('1'.toString().padStart(64,'0'), "hex");
+        return Buffer.from('1'.toString().padStart(64,'0'), "hex");
     },
 
     coordinatorPubKey: function(){

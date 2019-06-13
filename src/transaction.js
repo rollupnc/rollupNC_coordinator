@@ -1,6 +1,6 @@
 import knex from '../DB/dbClient.js';
 import eddsa from '../circomlib/src/eddsa.js';
-import mimcjs from '../circomlib/src/mimc7.js';
+import utils from './utils.js';
 
 // class transaction
 export default class Transaction {
@@ -24,14 +24,14 @@ export default class Transaction {
    * @param {Buffer} privateKey
    */
   sign(privateKey) {
-    this.hash = mimcjs.multiHash([
+    this.hash = utils.toMultiHash(
       this.fromX,
       this.fromY,
       this.toX,
       this.toY,
       this.amount,
       this.tokenType,
-    ]);
+    );
     this.signature = eddsa.signMiMC(privateKey, this.hash);
     this.R1 = this.signature.R8[0]
     this.R2 = this.signature.R8[1]

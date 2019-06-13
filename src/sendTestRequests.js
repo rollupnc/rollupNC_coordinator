@@ -12,10 +12,10 @@ function formatSignature(tx) {
     }
 }
 
-function submitTx(from, to, amount, tokenType, signature) {
+function submitTx(from, to, amount, tokenType) {
     console.log(`${from.name} send ${to.name} ${amount} of token ${tokenType}`)
     const tx = new Transaction(from.X, from.Y, to.X, to.Y, amount, tokenType, null, null, null)
-    tx.sign(from.privateKey)
+    tx.sign(from.privkey)
     const json = {
         fromX: tx.fromX,
         fromY: tx.fromY,

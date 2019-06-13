@@ -18,8 +18,8 @@ function createTxs() {
 
 
 describe('Prepare Tx', () => {
-    xit('should repare txs sucessfully', () => {
+    it('should repare txs sucessfully', (done) => {
         const txs = createTxs();
-        prepTxs(txs);
+        prepTxs(txs).catch(done).then(done);
     })
 })

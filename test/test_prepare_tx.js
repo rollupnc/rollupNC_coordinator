@@ -18,8 +18,8 @@ function createTxs() {
 
 
 describe('Prepare Tx', () => {
-    it('should repare txs sucessfully', (done) => {
+    it('should repare txs sucessfully', async () => {
         const txs = createTxs();
-        prepTxs(txs).catch(done).then(done);
+        await prepTxs(txs)
     })
 })

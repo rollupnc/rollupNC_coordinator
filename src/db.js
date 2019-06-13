@@ -37,7 +37,6 @@ async function getAllAccounts() {
   var results = await knex.select('*').from('accounts').orderBy('index', 'asc')
   var accounts = Array()
   for (var i = 0; i < results.length; i++) {
-    // console.log('id', results[i].id)
     var leaf = {}
     leaf['pubKey_x'] = results[i].pubkeyX;
     leaf['pubKey_y'] = results[i].pubkeyY;
@@ -46,7 +45,6 @@ async function getAllAccounts() {
     leaf['token_type'] = results[i].tokenType;
     accounts.push(leaf)
   }
-  console.log(accounts)
   return accounts
 }
 

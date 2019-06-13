@@ -24,7 +24,7 @@ export default class Transaction {
    * @param {Buffer} privateKey
    */
   sign(privateKey) {
-    const hash = utils.toMultiHash(
+    this.hash = utils.toMultiHash(
       this.fromX,
       this.fromY,
       this.toX,
@@ -32,11 +32,11 @@ export default class Transaction {
       this.amount,
       this.tokenType,
     );
-    const signature = eddsa.signMiMC(privateKey, hash);
-    this.R1 = signature.R8[0]
-    this.R2 = signature.R8[1]
-    this.S = signature.S
-    return signature
+    this.signature = eddsa.signMiMC(privateKey, this.hash);
+    this.R1 = this.signature.R8[0]
+    this.R2 = this.signature.R8[1]
+    this.S = this.signature.S
+    return this.signature
   }
 
   serialise() {

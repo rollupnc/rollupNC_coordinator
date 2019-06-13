@@ -1,7 +1,7 @@
 import request from 'request';
 import Transaction from './transaction.js';
 import Poller from './poller.js';
-import {prv2pub} from '../circomlib/src/eddsa';
+import {Alice, Bob} from '../test/fixtures';
 
 const url = "http://localhost:3000/submitTx";
 
@@ -35,22 +35,6 @@ function submitTx(from, to, amount, tokenType, signature) {
     )
 }
 
-const alice_privkey =  Buffer.from("2".padStart(64, '0'), "hex");
-const alice_pubkey = prv2pub(alice_privkey)
-const Alice = {
-    name: 'alice',
-    X: alice_pubkey[1].toString(),
-    Y: alice_pubkey[0].toString(),
-    privateKey: alice_privkey,
-}
-const bob_privkey =  Buffer.from("5".padStart(64, '0'), "hex");
-const bob_pubkey = prv2pub(bob_privkey)
-const Bob = {
-    name: 'bob',
-    X: bob_pubkey[1].toString(),
-    Y: bob_pubkey[0].toString(),
-    privateKey: bob_privkey,
-}
 
 var sender = Alice;
 var receiver = Bob;

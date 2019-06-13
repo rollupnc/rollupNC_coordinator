@@ -85,7 +85,6 @@ module.exports = {
             toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx[k], tx_depth)
 
             fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
-            console.log("calling processTx for index", k)
             var output = module.exports.processTx(
                 k, txArray, txProofs[k], signatures[k], txRoot,
                 from_accounts_idx[k], to_accounts_idx[k], balanceLeafArrayReceiver,
@@ -245,9 +244,7 @@ module.exports = {
             eddsa.verifyMiMC(
                 unstringifyBigInts(txLeaf.hashTxLeafArray([tx])), 
                 unstringifyBigInts(signature),
-                unstringifyBigInts(
-                [fromLeaf['pubKey_x'], 
-                fromLeaf['pubKey_y']])
+                unstringifyBigInts([tx.from_x, tx.from_y])
             )
         )
     },

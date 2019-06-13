@@ -86,8 +86,6 @@ async function prepTxs(txs) {
   var [fromX, fromY, toX, toY, tokenTypes, signatures, amounts] = await getTransactionArray(txs)
   const txArray = await tx.generateTxLeafArray(fromX, fromY, toX, toY, amounts, tokenTypes)
 
-  const tx_token_types = [10, 10, 10, 10];
-
   var accountsArray = await db.getAllAccounts()
   var from_accounts_idx = [1, 2, 1, 3]
   var to_accounts_idx = [2, 0, 3, 2]
@@ -101,7 +99,7 @@ async function prepTxs(txs) {
     from_accounts_idx,
     to_accounts_idx,
     amounts,
-    tx_token_types,
+    tokenTypes,
     signatures
   )
   console.log("input generated", inputs)

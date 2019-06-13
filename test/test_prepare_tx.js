@@ -1,6 +1,8 @@
 import { prepTxs } from '../src/utils';
 import Transaction from '../src/transaction.js';
 import { Alice, Bob } from './fixtures';
+import DB from '../src/db';
+import knex from '../DB/dbClient.js';
 
 function createTx(from, to, amount, tokenType) {
     const tx = new Transaction(from.X, from.Y, to.X, to.Y, amount, tokenType, null, null, null);
@@ -18,6 +20,12 @@ function createTxs() {
 
 
 describe('Prepare Tx', () => {
+    beforeEach(async () => {
+        await DB.AddGenesisState()
+    })
+    afterEach(async () => {
+        await knex('accounts').del()
+    })
     it('should repare txs sucessfully', async () => {
         const txs = createTxs();
         await prepTxs(txs)

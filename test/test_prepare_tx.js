@@ -21,6 +21,7 @@ function createTxs() {
 
 describe('Prepare Tx', () => {
     beforeEach(async () => {
+        await knex.migrate.latest()
         await DB.AddGenesisState()
     })
     afterEach(async () => {

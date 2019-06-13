@@ -13,6 +13,8 @@ var PAD_NONCE = 0;
 // const ZERO_HASH = '\x00'.repeat(32);
 
 function pad(leafArray, leafHashArray, signaturesArray, from_accts_idx, to_accts_idx, max_length){
+
+    console.log('from_accts_idx before padding', from_accts_idx)
     if (leafArray.length > max_length) {
         throw new Error(`Length of input array ${leafArray.length} is longer than max_length ${max_length}`);
     }
@@ -36,6 +38,8 @@ function pad(leafArray, leafHashArray, signaturesArray, from_accts_idx, to_accts
         PAD_NONCE++;
 
     }
+    console.log('from_accts_idx after padding', from_accts_idx)
+
     return [leafArray, leafHashArray, signaturesArray, from_accts_idx, to_accts_idx]
 }
 
@@ -49,6 +53,7 @@ module.exports = {
         to_x,
         to_y,
         nonces,
+        balanceLeafArraySender,
         balanceLeafArrayReceiver,
         from_accounts_idx,
         to_accounts_idx,
@@ -104,14 +109,17 @@ module.exports = {
 
         intermediateRoots[0] = originalState
 
+        console.log('from_accounts_idx_padded', from_accounts_idx_padded)
+        console.log('balanceLeafArrayReceiver',balanceLeafArrayReceiver)
         for (var k = 0; k < 2 ** tx_depth; k++) {
 
-            nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['nonce']
+            
+            nonceFromArray[k] = balanceLeafArraySender[from_accounts_idx_padded[k]]['nonce']
             nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['nonce']
 
-            tokenBalanceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['balance']
+            tokenBalanceFromArray[k] = balanceLeafArraySender[from_accounts_idx_padded[k]]['balance']
             tokenBalanceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['balance']
-            tokenTypeFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx_padded[k]]['token_type']
+            tokenTypeFromArray[k] = balanceLeafArraySender[from_accounts_idx_padded[k]]['token_type']
             tokenTypeToArray[k] = balanceLeafArrayReceiver[to_accounts_idx_padded[k]]['token_type']
 
             fromPosArray[k] = merkle.idxToBinaryPos(from_accounts_idx_padded[k], tx_depth)

@@ -2,6 +2,7 @@ import request from 'request';
 import Transaction from './transaction.js';
 import Poller from './poller.js';
 import {Alice, Bob} from '../test/fixtures';
+import DB from './db.js'
 
 const url = "http://localhost:3000/submitTx";
 
@@ -28,8 +29,6 @@ function submitTx(from, to, nonce, amount, tokenType) {
         tokenType: tx.tokenType,
         signature: formatSignature(tx),
     }
-    console.log('message', msg, 'signature', signature)
-    console.log('checkSignature', utils.checkSignature(msg, tx.fromX, tx.fromY, signature))
     request.post({ url, json },
         function (error, response, body) {
             if (error) {
@@ -45,12 +44,13 @@ var sender = Alice;
 var receiver = Bob;
 var tmp;
 
+
 const poller = new Poller(1000);
 poller.poll()
 poller.onPoll(async () => {
     // const nonce = 0;
-    var nonce = await DB.getNonce(sender.X, sender.Y)
-    submitTx(sender, receiver, nonce, 500, 0)
+    submitTx(sender, receiver, sender.nonce, 500, 0)
+    sender.nonce ++;
     tmp = sender
     sender = receiver
     receiver = tmp;

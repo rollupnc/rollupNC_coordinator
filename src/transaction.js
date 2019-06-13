@@ -66,6 +66,13 @@ export default class Transaction {
     // return true/false
   }
 
+  async addIndex(){
+    const fromAccount = await knex('accounts').where({pubkeyX:this.fromX}).first()
+    this.fromIndex = fromAccount.index
+    const toAccount = await knex('accounts').where({pubkeyX:this.toX}).first()
+    this.toIndex = toAccount.index
+  }
+
   async save() {
     // var res = knex('tx').insert([this.fromX, this.fromY, this.toX, this.toY, this.tokenType, this.amount, this.sig])
     var result = await knex('tx').insert({

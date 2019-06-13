@@ -103,6 +103,7 @@ async function getTransactionArray(txs) {
   // txs = txs[0]
   for (var i = 0; i < txs.length; i++) {
     // logger.debug("traversing", { index: i, len: txs.length, transaction: txs[i] })
+    await txs[i].addIndex()
     fromX.push(txs[i].fromX)
     fromY.push(txs[i].fromY)
     fromIndices.push(txs[i].fromIndex)
@@ -131,6 +132,8 @@ async function prepTxs(txs) {
     fromX, fromY, fromIndices, toX, toY, toIndices, 
     nonces, tokenTypes, signatures, amounts
   ] = await getTransactionArray(txs)
+
+  console.log('nonceeeee ', nonces)
   const txArray = await tx.generateTxLeafArray(fromX, fromY, toX, toY, nonces, amounts, tokenTypes)
 
   var accountsArray = await db.getAllAccounts()

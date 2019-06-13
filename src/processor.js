@@ -48,7 +48,7 @@ async function fetchTxs() {
     transaction["toX"] = tx.toX
     transaction["toY"] = tx.toY
     transaction["toIndex"] = await db.getIndex(tx.toX, tx.toY)
-    transaction["nonce"] = tx.nonce
+    transaction["nonce"] = tx.nonce;
     transaction["amount"] = tx.amount
     transaction["tokenType"] = tx.tokenType
     transaction["signature"] = utils.toSignature(tx.R1, tx.R2, tx.S)

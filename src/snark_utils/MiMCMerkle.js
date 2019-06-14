@@ -81,10 +81,15 @@ module.exports = {
         if (array.length % 2 == 0) {
             var arrayHash = []
             for (var i = 0; i < array.length; i = i + 2) {
-                arrayHash.push(mimcjs.multiHash([array[i].toString(), array[i + 1].toString()]))
+                arrayHash.push(mimcjs.multiHash(
+                    [array[i].toString(),
+                    array[i + 1].toString()]
+                    )   
+                )
             }
             return arrayHash
         } else {
+            console.log('array has', array.length, 'elements')
             console.log('array must have even number of elements')
         }
     },

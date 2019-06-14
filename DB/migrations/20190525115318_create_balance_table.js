@@ -4,8 +4,8 @@ exports.up = function (knex, Promise) {
     t.integer('ID').notNullable()
     t.string('pubkeyX').notNullable()
     t.string('pubkeyY').notNullable()
-    t.string('nonce').notNullable()
-    t.string('tokenType').notNullable()
+    t.integer('nonce').notNullable()
+    t.integer('tokenType').notNullable()
   })
 };
 

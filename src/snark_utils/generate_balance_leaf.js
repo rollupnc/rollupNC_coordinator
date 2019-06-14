@@ -1,5 +1,6 @@
 const mimcjs = require("../../circomlib/src/mimc7.js");
 const bigInt = require("snarkjs").bigInt;
+const eddsa = require("../../circomlib/src/eddsa.js");
 
 module.exports = {
 

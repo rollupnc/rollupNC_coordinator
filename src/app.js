@@ -19,11 +19,14 @@ app.post("/submitTx", async function (req, res) {
   var fromY = req.body.fromY;
   var toX = req.body.toX;
   var toY = req.body.toY;
+  var nonce = req.body.nonce;
   var amount = parseInt(req.body.amount);
   var tokenType = parseInt(req.body.tokenType);
   var signature = req.body.signature;
   var R = signature.R8.split(",")
-  var tx = new Transaction(fromX, fromY, toX, toY, amount, tokenType, R[0], R[1], signature.S)
+  var tx = new Transaction(
+    fromX, fromY, toX, toY, nonce, 
+    amount, tokenType, R[0], R[1], signature.S)
   // send tx to tx_pool
   await addtoqueue(await utils.getConn(), tx.serialise());
   // logger.debug("Added tx to queue")
@@ -32,7 +35,9 @@ app.post("/submitTx", async function (req, res) {
 
 // get transaction hash from transaction params
 app.post('/getTx', async function (req, res) {
-  var hash = await utils.toMultiHash(req.body.fromX, req.body.fromY, req.body.toX, req.body.toY, req.body.amount, req.body.tokenType).toString()
+  var hash = await utils.toMultiHash(
+    req.body.fromX, req.body.fromY, req.body.toX, req.body.toY, 
+    req.body.nonce, req.body.amount, req.body.tokenType).toString()
   logger.info("Tx leaf hash generated", { tx: hash })
   res.json({ txLeafHash: hash })
 })

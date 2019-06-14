@@ -9,15 +9,6 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 const bigInt = require('snarkjs').bigInt
 
 const NONCE_MAX_VALUE = 100;
-const ZERO_HASH = '\x00'.repeat(32);
-
-function pad(array, max_length) {
-    if (array.length > max_length) {
-        throw new Error(`Length of input array ${array.length} is longer than max_length ${max_length}`);
-    }
-    const zero_hash_array = new Array(max_length - array.length).fill(ZERO_HASH);
-    return array.concat(zero_hash_array)
-}
 
 module.exports = {
 
@@ -27,6 +18,7 @@ module.exports = {
         from_y,
         to_x,
         to_y,
+        nonces,
         balanceLeafArrayReceiver,
         from_accounts_idx,
         to_accounts_idx,
@@ -34,6 +26,7 @@ module.exports = {
         tx_token_types,
         signatures,
     ) {
+
 
         var txPosArray = merkle.generateMerklePosArray(tx_depth)
 
@@ -45,10 +38,6 @@ module.exports = {
         var fromPosArray = new Array(2 ** tx_depth)
         var toPosArray = new Array(2 ** tx_depth)
 
-        var R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signatures))
-        var R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signatures))
-        var SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signatures))
-
         var nonceFromArray = new Array(2 ** tx_depth)
 
         var nonceToArray = new Array(2 ** tx_depth)
@@ -59,9 +48,14 @@ module.exports = {
         var tokenTypeToArray = new Array(2 ** tx_depth)
 
         const txArray = txLeaf.generateTxLeafArray(
-            from_x, from_y, to_x, to_y, amounts, tx_token_types
+            from_x, from_y, to_x, to_y, nonces, amounts, tx_token_types
         )
-        const txLeafHashes = pad(txLeaf.hashTxLeafArray(txArray), 2 ** tx_depth)
+        const txLeafHashes = txLeaf.hashTxLeafArray(txArray)
+        
+        var R8xArray = module.exports.stringifyArray(txLeaf.getSignaturesR8x(signatures))
+        var R8yArray = module.exports.stringifyArray(txLeaf.getSignaturesR8y(signatures))
+        var SArray = module.exports.stringifyArray(txLeaf.getSignaturesS(signatures))
+
         const txTree = merkle.treeFromLeafArray(txLeafHashes)
         const txRoot = merkle.rootFromLeafArray(txLeafHashes)
         const txProofs = merkle.generateMerkleProofArray(txTree, txLeafHashes)
@@ -72,7 +66,6 @@ module.exports = {
         intermediateRoots[0] = originalState
 
         for (var k = 0; k < 2 ** tx_depth; k++) {
-
             nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['nonce']
             nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['nonce']
 
@@ -85,9 +78,11 @@ module.exports = {
             toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx[k], tx_depth)
 
             fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
+
             var output = module.exports.processTx(
                 k, txArray, txProofs[k], signatures[k], txRoot,
-                from_accounts_idx[k], to_accounts_idx[k], balanceLeafArrayReceiver,
+                from_accounts_idx[k], to_accounts_idx[k], nonces[k],
+                balanceLeafArrayReceiver,
                 fromProofs[k], intermediateRoots[2 * k]
             )
 
@@ -103,8 +98,6 @@ module.exports = {
 
             newToProofs[k] = output['newToProof'];
         }
-
-        console.log('newRoot', intermediateRoots[2 ** (tx_depth + 1)])
 
         return {
 
@@ -143,7 +136,7 @@ module.exports = {
 
     processTx: function (
         txIdx, txLeafArray, txProof, signature, txRoot,
-        fromLeafIdx, toLeafIdx, balanceLeafArray,
+        fromLeafIdx, toLeafIdx, nonce, balanceLeafArray,
         fromProof, oldBalanceRoot
     ) {
 
@@ -171,7 +164,7 @@ module.exports = {
         module.exports.checkSignature(txLeaf, fromLeaf, signature)
 
         // nonce check
-        module.exports.checkNonce(fromLeaf)
+        module.exports.checkNonce(fromLeaf, nonce)
 
         // check sender existence in original root
         assert(merkle.verifyProof(fromLeafHash, fromLeafIdx, fromProof, oldBalanceRoot))
@@ -242,7 +235,7 @@ module.exports = {
         }
         assert(
             eddsa.verifyMiMC(
-                unstringifyBigInts(txLeaf.hashTxLeafArray([tx])), 
+                unstringifyBigInts(txLeaf.hashTxLeaf(tx)), 
                 unstringifyBigInts(signature),
                 unstringifyBigInts([tx.from_x, tx.from_y])
             )
@@ -264,8 +257,9 @@ module.exports = {
         }
     },
 
-    checkNonce: function (fromLeaf) {
+    checkNonce: function (fromLeaf, nonce) {
         assert(fromLeaf['nonce'] < NONCE_MAX_VALUE)
+        assert(fromLeaf['nonce'] == nonce)
     },
 
     stringifyArray: function (array) {

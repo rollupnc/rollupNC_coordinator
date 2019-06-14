@@ -28,7 +28,7 @@ export default class Mempool {
       // 5. Reject if mempool at capacity
       // IFF everything passes and the tx is likey to go through, persist the tx to DB 
       var res = await tx.save()
-      logger.info("Transaction passed all validation, adding to mempool", { tx: msg.content.toString() });
+      // logger.info("Transaction passed all validation, adding to mempool", { tx: msg.content.toString() });
     }, { noAck: true });
   }
 

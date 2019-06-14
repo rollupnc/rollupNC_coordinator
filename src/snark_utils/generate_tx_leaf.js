@@ -34,7 +34,6 @@ module.exports = {
                 leaf['amount'] = amounts[i];
                 leaf['token_type'] = token_types[i];
                 txLeafArray.push(leaf);
-                // console.log(i, leaf)
             }
             return txLeafArray;
         } else {
@@ -82,7 +81,7 @@ module.exports = {
         if (Array.isArray(leafHashArray)) {
             var signatures = [];
             for (var i = 0; i < leafHashArray.length; i++) {
-                 var signature = eddsa.signMiMC(prvKeys[i], leafHashArray[i]);
+                var signature = eddsa.signMiMC(prvKeys[i], leafHashArray[i]);
                 signatures.push(signature)
             }
             return signatures

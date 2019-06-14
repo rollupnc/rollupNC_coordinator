@@ -27,7 +27,6 @@ async function createTxs() {
 describe('Prepare Tx', () => {
     beforeEach(async () => {
         await knex.migrate.latest()
-        // await DB.AddGenesisState()
         await Zero.to_account().save()
         await Coordinator.to_account().save()
         await Alice.to_account().save()

@@ -48,7 +48,6 @@ var tmp;
 const poller = new Poller(1000);
 poller.poll()
 poller.onPoll(async () => {
-    // const nonce = 0;
     submitTx(sender, receiver, sender.nonce, 500, 0)
     sender.nonce ++;
     tmp = sender

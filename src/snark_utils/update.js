@@ -9,8 +9,6 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 const bigInt = require('snarkjs').bigInt
 
 const NONCE_MAX_VALUE = 100;
-var PAD_NONCE = 0;
-// const ZERO_HASH = '\x00'.repeat(32);
 
 module.exports = {
 

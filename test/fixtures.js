@@ -16,11 +16,14 @@ class User {
         return new Account(this.index, this.X, this.Y, 10000, 0, 10)
     }
 }
-
+const Zero = new User('Zero', 0,0)
+const Coordinator = new User('Coordinator', 1, 1)
 const Alice = new User('Alice',2, 2);
 const Bob = new User('Bob',3, 5);
 
 export default {
+    Zero,
+    Coordinator,
     Alice,
     Bob,
 }

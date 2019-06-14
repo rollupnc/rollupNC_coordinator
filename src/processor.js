@@ -3,6 +3,7 @@ import config from '../config/config.js';
 import logger from './logger';
 import createProof from './circuit';
 import db from './db';
+import Transaction from './transaction';
 
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
@@ -37,6 +38,7 @@ async function fetchTxs() {
   if (txs.length <= 0) {
     return
   }
+  txs = pad(txs)
   var transactions = Array()
   // sanitise the transactions for proof 
   // TODO remove after POC 
@@ -57,4 +59,30 @@ async function fetchTxs() {
   // console.log("accounts here", await db.getAllAccounts())
   createProof(transactions)
   return;
+}
+
+// helper functions
+
+function pad(txs){
+  const PAD_NONCE =0; //TODO: access this from DB;
+  const max_length = global.gConfig.txs_per_snark;
+  if (txs.length > max_length) {
+      throw new Error(`Length of input array ${txs.length} is longer than max_length ${max_length}`);
+  }
+  const prvKey = account.coordinatorPrvKey()
+  const pubKey = account.coordinatorPubKey()
+  const num_of_tx_to_pad = max_length - txs.length
+
+  for (var i = 0; i < num_of_tx_to_pad; i++){
+    let tx = new Transaction( pubKey[0], pubKey[1], pubKey[0], pubKey[1], 
+      PAD_NONCE, 0, 0)
+
+    tx.sign(prvKey)
+    tx.addIndex()
+    txs.push(tx)
+    PAD_NONCE++;
+
+  }
+
+  return txs
 }

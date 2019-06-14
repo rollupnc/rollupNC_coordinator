@@ -1,9 +1,10 @@
 import { prepTxs } from '../src/utils';
 import Transaction from '../src/transaction.js';
-import { Alice, Bob } from './fixtures';
+import { Zero, Coordinator, Alice, Bob } from './fixtures';
 import DB from '../src/db';
 import knex from '../DB/dbClient.js';
 import Account from '../src/account';
+import { isZero } from 'snarkjs/src/bigint';
 
 function createTx(from, to,nonce, amount, tokenType) {
     const tx = new Transaction(from.X, from.Y, to.X, to.Y,nonce, amount, tokenType, null, null, null);
@@ -24,6 +25,8 @@ describe('Prepare Tx', () => {
     beforeEach(async () => {
         await knex.migrate.latest()
         // await DB.AddGenesisState()
+        await Zero.to_account().save()
+        await Coordinator.to_account().save()
         await Alice.to_account().save()
         await Bob.to_account().save()
     })

@@ -44,16 +44,6 @@ module.exports = {
     },
 
     hashTxLeaf: function(leaf){
-        console.log(
-            'trying to hash',
-            leaf['from_x'].toString(),
-            leaf['from_y'].toString(),
-            leaf['to_x'].toString(),
-            leaf['to_y'].toString(),
-            leaf['nonce'].toString(),
-            leaf['amount'].toString(),
-            leaf['token_type'].toString()
-        )
         
         var leafHash = mimcjs.multiHash([
             leaf['from_x'].toString(),
@@ -64,7 +54,6 @@ module.exports = {
             leaf['amount'].toString(),
             leaf['token_type'].toString()
         ])
-        console.log('hash result', leafHash)
         return leafHash
     },
 

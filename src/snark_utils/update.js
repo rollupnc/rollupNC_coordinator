@@ -67,12 +67,7 @@ module.exports = {
 
         intermediateRoots[0] = originalState
 
-        console.log('from_accounts_idx_padded', from_accounts_idx)
-        console.log('balanceLeafArrayReceiver',balanceLeafArrayReceiver)
         for (var k = 0; k < 2 ** tx_depth; k++) {
-
-            console.log('index', from_accounts_idx[k])
-            console.log(k, balanceLeafArrayReceiver[from_accounts_idx[k]])
             nonceFromArray[k] = balanceLeafArrayReceiver[from_accounts_idx[k]]['nonce']
             nonceToArray[k] = balanceLeafArrayReceiver[to_accounts_idx[k]]['nonce']
 
@@ -85,7 +80,7 @@ module.exports = {
             toPosArray[k] = merkle.idxToBinaryPos(to_accounts_idx[k], tx_depth)
 
             fromProofs[k] = merkle.getProof(from_accounts_idx[k], balanceTreeReceiver, balanceLeafHashArrayReceiver)
-            console.log("calling processTx for index", k)
+
             var output = module.exports.processTx(
                 k, txArray, txProofs[k], signatures[k], txRoot,
                 from_accounts_idx[k], to_accounts_idx[k], nonces[k],
@@ -105,8 +100,6 @@ module.exports = {
 
             newToProofs[k] = output['newToProof'];
         }
-
-        console.log('newRoot', intermediateRoots[2 ** (tx_depth + 1)])
 
         return {
 
@@ -242,13 +235,6 @@ module.exports = {
         if (signature.S[signature.S.length - 1] == 'n'){
             signature.S =  signature.S.slice(0, signature.S.length-1);
         }
-        console.log('cannot eddsa verify',
-            unstringifyBigInts(txLeaf.hashTxLeaf(tx)), 
-            unstringifyBigInts(signature),
-            unstringifyBigInts(
-            [fromLeaf['pubKey_x'], 
-            fromLeaf['pubKey_y']])
-        )
         assert(
             eddsa.verifyMiMC(
                 unstringifyBigInts(txLeaf.hashTxLeaf(tx)), 

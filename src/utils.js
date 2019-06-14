@@ -37,23 +37,6 @@ async function getConn() {
 
 // convert a leaf to multiHash hash 
 function toMultiHash(fromX, fromY, toX, toY, nonce, amount, token) {
-  console.log('trying to hash',
-  [
-    fromX.toString(),
-    fromY.toString(),
-    toX.toString(),
-    toY.toString(),
-    'nonce', nonce.toString(),
-    amount.toString(),
-    token.toString()
-    // bigInt(fromX), 
-    // bigInt(fromY), 
-    // bigInt(toX), 
-    // bigInt(toY), 
-    // bigInt(nonce),
-    // bigInt(amount), 
-    // bigInt(token)
-  ])
   var leafHash = mimcjs.multiHash([
     fromX.toString(),
     fromY.toString(),
@@ -62,13 +45,6 @@ function toMultiHash(fromX, fromY, toX, toY, nonce, amount, token) {
     nonce.toString(),
     amount.toString(),
     token.toString()
-    // bigInt(fromX), 
-    // bigInt(fromY), 
-    // bigInt(toX), 
-    // bigInt(toY), 
-    // bigInt(nonce),
-    // bigInt(amount), 
-    // bigInt(token)
   ])
   return leafHash
 }
@@ -103,7 +79,6 @@ async function getTransactionArray(txs) {
   // txs = txs[0]
   for (var i = 0; i < txs.length; i++) {
     // logger.debug("traversing", { index: i, len: txs.length, transaction: txs[i] })
-    await txs[i].addIndex()
     fromX.push(txs[i].fromX)
     fromY.push(txs[i].fromY)
     fromIndices.push(txs[i].fromIndex)
@@ -119,8 +94,6 @@ async function getTransactionArray(txs) {
     // collect sigs
     signatures.push(txs[i].signature)
   }
-  console.log('===========================================================================================fromIndices', fromIndices)
-  console.log('toIndices', toIndices)
   return [
     fromX, fromY, fromIndices, toX, toY, toIndices, 
     nonces, tokenTypes, signatures, amounts
@@ -133,7 +106,6 @@ async function prepTxs(txs) {
     nonces, tokenTypes, signatures, amounts
   ] = await getTransactionArray(txs)
 
-  console.log('nonceeeee ', nonces)
   const txArray = await tx.generateTxLeafArray(fromX, fromY, toX, toY, nonces, amounts, tokenTypes)
 
   var accountsArray = await db.getAllAccounts()

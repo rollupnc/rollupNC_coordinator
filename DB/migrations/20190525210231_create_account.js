@@ -1,13 +1,14 @@
 
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('accounts', function (t) {
-    t.integer('index').notNullable()
+    t.integer('index').primary().unique()
     t.string('pubkeyX').notNullable()
     t.string('pubkeyY').notNullable()
     t.integer('balance').notNullable()
-    t.integer('nonce').notNullable()
+    t.integer('nonce').defaultTo(0)
     t.integer('tokenType').notNullable()
-    t.unique('pubkeyX')
+    t.datetime('createdAt');
+    t.datetime('updatedAt');
   })
 };
 

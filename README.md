@@ -9,7 +9,10 @@ Acts as a co-ordinator between users for RollupNC
 ```bash
 npm i
 ```
-
+## Create Migration 
+```bash
+knex migrate:make account_tree  --knexfile=DB/knexfile.js
+```
 ## Run Migrations
 
 ```bash

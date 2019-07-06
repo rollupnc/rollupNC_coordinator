@@ -1,21 +1,21 @@
 import amqp from 'amqplib';
-import mimcjs from '../circomlib/src/mimc7.js';
-import eddsa from '../circomlib/src/eddsa.js';
+import mimcjs from '../../circomlib/src/mimc7.js';
+import eddsa from '../../circomlib/src/eddsa.js';
 import logger from './logger.js'
-import account from "./snark_utils/generate_accounts.js"
-import merkle from "./snark_utils/MiMCMerkle.js"
-import balance from "./snark_utils/generate_balance_leaf.js"
-import tx from "./snark_utils/generate_tx_leaf.js"
-import update from "./snark_utils/update.js"
-import Transaction from './transaction.js';
-const {stringifyBigInts, unstringifyBigInts} = require('./snark_utils/stringifybigint.js')
+import account from "../snark_utils/generate_accounts.js"
+import merkle from "../snark_utils/MiMCMerkle.js"
+import balance from "../snark_utils/generate_balance_leaf.js"
+import tx from "../snark_utils/generate_tx_leaf.js"
+import update from "../snark_utils/update.js"
+import Transaction from '../models/transaction.js';
+const {stringifyBigInts, unstringifyBigInts} = require('../snark_utils/stringifybigint.js')
 // const websnark = require('./snark_utils/websnark.js')
-const snarkHelper = require('./snark_utils/snark_helper.js')
-const circuit = require('../snark/circuit.json')
+const snarkHelper = require('../snark_utils/snark_helper.js')
+const circuit = require('../../snark/circuit.json')
 
 import path from 'path'
 import Promise from 'bluebird';
-import db from './db.js';
+import db from '../db.js';
 const fs = Promise.promisifyAll(require('fs'));
 
 const bigInt = require("snarkjs").bigInt;

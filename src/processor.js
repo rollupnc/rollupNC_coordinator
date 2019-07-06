@@ -1,9 +1,9 @@
-import utils from './utils';
+import utils from './helpers/utils';
 import config from '../config/config.js';
-import logger from './logger';
+import logger from './helpers/logger';
 import createProof from './circuit';
 import db from './db';
-import Transaction from './transaction';
+import Transaction from './models/transaction';
 import account from './snark_utils/generate_accounts';
 
 const q = global.gConfig.tx_queue;

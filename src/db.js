@@ -1,14 +1,12 @@
+// All database interactions to be performed from here
 import config from '../config/config.js';
-import Account from './account.js';
+import Account from './models/account.js';
 import fs from 'fs'
-import utils from './utils.js'
-import logger from './logger.js'
+import utils from './helpers/utils.js'
+import logger from './helpers/logger.js'
 import knex from '../DB/dbClient.js'
 
 const bigInt = require("snarkjs").bigInt;
-// const stringifyBigInts = require("snarkjs").stringifyBigInts;
-
-// const unstringifyBigInts = require("snarkjs").unstringifyBigInts;
 
 async function getTxCount() {
   var count = await knex('tx').count()

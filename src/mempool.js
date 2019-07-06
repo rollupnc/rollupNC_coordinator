@@ -1,6 +1,6 @@
-import utils from './utils';
+import utils from './helpers/utils';
 import config from '../config/config.js';
-import logger from './logger';
+import logger from './helpers/logger';
 import knex from '../DB/dbClient'
 import db from './db'
 

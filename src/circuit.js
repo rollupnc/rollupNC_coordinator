@@ -1,4 +1,4 @@
-import utils from './utils';
+import utils from './helpers/utils';
 import zkSnark from 'snarkjs';
 import fs from 'fs';
 // const circuitDef = JSON.parse(fs.readFileSync("../snark/trasfer.cir", "utf8"));

@@ -8,6 +8,6 @@ module.exports = {
     database: global.gConfig.db_name
   },
   migrations: {
-    directory: './DB/migrations',
+    directory: './migrations',
   },
 }

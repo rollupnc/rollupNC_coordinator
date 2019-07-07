@@ -1,6 +1,6 @@
 const winston = require("winston")
 const moment = require("moment")
-var config = require("../config/config.js");
+var config = require("../../config/config.js");
 
 const fs = require('fs')
 const tsFormat = () => moment().format('YYYY-MM-DD hh:mm:ss')

@@ -1,6 +1,6 @@
 import Processor from './processor.js';
 import Poller from './poller';
-import logger from './logger';
+import logger from './helpers/logger';
 import Mempool from './mempool.js';
 import DB from './db';
 import app from './app';

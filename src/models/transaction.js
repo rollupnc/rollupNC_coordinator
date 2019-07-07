@@ -1,6 +1,6 @@
-import knex from '../DB/dbClient.js';
-import eddsa from '../circomlib/src/eddsa.js';
-import utils from './utils.js';
+import knex from '../../DB/dbClient';
+import eddsa from '../../circomlib/src/eddsa.js';
+import utils from '../helpers/utils.js';
 
 // class transaction
 export default class Transaction {

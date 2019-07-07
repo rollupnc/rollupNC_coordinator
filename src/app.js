@@ -1,9 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import utils from './utils'
+import utils from './helpers/utils'
 import eddsa from '../circomlib/src/eddsa.js';
-import logger from './logger';
-import Transaction from './transaction.js';
+import logger from './helpers/logger';
+import Transaction from './models/transaction.js';
 
 // create express obj 
 const app = express();

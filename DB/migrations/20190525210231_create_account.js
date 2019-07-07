@@ -7,6 +7,7 @@ exports.up = function (knex, Promise) {
     t.integer('balance').notNullable()
     t.integer('nonce').defaultTo(0)
     t.integer('tokenType').notNullable()
+    t.string('modifiedBy')
     t.datetime('createdAt');
     t.datetime('updatedAt');
   })

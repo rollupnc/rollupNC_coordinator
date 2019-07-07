@@ -11,3 +11,4 @@ module.exports = {
   down: knex => knex.schema.dropTable("deposit")
 };
 
+ 

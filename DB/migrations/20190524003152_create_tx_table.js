@@ -16,7 +16,7 @@ exports.up = function (knex, Promise) {
     t.string('S').notNullable()
     t.datetime('timestamp').notNullable()
     t.integer('status').defaultTo(0)
-    t.string('txRoot').notNullable()
+    t.string('txRoot')
   })
 };
 

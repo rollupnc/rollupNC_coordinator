@@ -11,7 +11,7 @@
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",
     "send-tx": "babel-node src/sendTestRequests.js",
     "test": " ./node_modules/mocha/bin/mocha --require babel-core/register --require babel-polyfill --exit",
-    "knex":"knex"
+    "knex": "knex"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
   "license": "ISC",

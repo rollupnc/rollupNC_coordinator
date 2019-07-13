@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "coordinator": "babel-node src/index.js",
+    "setup": "node config/secret.js",
     "create-DB": "node DB/createDB.js",
     "migration": "knex migrate:latest --knexfile=DB/knexfile.js",
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",

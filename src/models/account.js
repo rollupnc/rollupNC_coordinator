@@ -1,6 +1,5 @@
-
-import mimcjs from '../../circomlib/src/mimc7.js';
-import knex from '../../DB/dbClient.js';
+import mimcjs from '../../circomlib/src/mimc7.js'
+import knex from '../../DB/dbClient.js'
 
 // class transaction
 export default class Account {

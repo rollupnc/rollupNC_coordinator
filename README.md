@@ -1,4 +1,4 @@
-## RollupNC co-ordinator
+# RollupNC co-ordinator
 
 Acts as a co-ordinator between users for RollupNC
 
@@ -9,6 +9,15 @@ Acts as a co-ordinator between users for RollupNC
 ```bash
 npm i
 ```
+## Setup coordinator prvkey and DB password
+
+(from root directory)
+```bash
+cp config/config-sample.json config/config.json
+npm run setup
+```
+NB: you can manually change the secrets in `config.json` instead of running `npm run setup`.
+
 ## Create Migration 
 ```bash
 knex migrate:make account_tree  --knexfile=DB/knexfile.js

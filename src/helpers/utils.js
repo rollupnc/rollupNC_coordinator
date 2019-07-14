@@ -27,7 +27,7 @@ const TX_DEPTH = global.gConfig.tx_depth;
 const BAL_DEPTH = global.gConfig.balance_depth;
 
 // TODO move genesis file path to config
-const genPath = path.join(__dirname, "../../config/genesis.json");
+const genPath = path.join(__dirname, "../../config/preset-genesis.json");
 
 var conn = null;
 

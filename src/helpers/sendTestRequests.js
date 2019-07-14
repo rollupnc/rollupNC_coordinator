@@ -13,7 +13,7 @@ function formatSignature(tx) {
   };
 }
 
-function submitTx(from, to, nonce, amount, tokenType) {
+async function submitTx(from, to, nonce, amount, tokenType) {
   console.log(`${from.name} send ${to.name} ${amount} of token ${tokenType}`);
   const tx = new Transaction(
     from.X,
@@ -27,7 +27,7 @@ function submitTx(from, to, nonce, amount, tokenType) {
     null,
     null
   );
-  tx.sign(from.privkey);
+  await tx.sign(from.privkey);
   const json = {
     fromX: tx.fromX,
     fromY: tx.fromY,

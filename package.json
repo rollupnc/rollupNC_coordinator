@@ -10,9 +10,10 @@
     "create-DB": "node DB/createDB.js",
     "migration": "knex migrate:latest --knexfile=DB/knexfile.js",
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",
-    "send-tx": "babel-node src/sendTestRequests.js",
+    "send-tx": "babel-node src/helpers/sendTestRequests.js",
     "test": " ./node_modules/mocha/bin/mocha --require babel-core/register --require babel-polyfill --exit",
-    "knex": "knex"
+    "knex": "knex",
+    "start": "npm run coordinator"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
   "license": "ISC",

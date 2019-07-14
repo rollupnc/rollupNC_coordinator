@@ -1,59 +1,82 @@
 // All database interactions to be performed from here
-import config from '../config/config.js';
-import Account from './models/account.js';
-import fs from 'fs'
-import utils from './helpers/utils.js'
-import logger from './helpers/logger.js'
-import knex from '../DB/dbClient.js'
+import config from "../config/config.js";
+import Account from "./models/account.js";
+import fs from "fs";
+import utils from "./helpers/utils.js";
+import logger from "./helpers/logger.js";
+import knex from "../DB/dbClient.js";
 
 const bigInt = require("snarkjs").bigInt;
 
 async function getTxCount() {
-  var count = await knex('tx').count()
-  return count
+  var count = await knex("tx").count();
+  return count;
 }
 
-// TODO delete selected transactions 
+// select max transactions that can be processes in a queue
 async function getMaxTxs() {
-  var res = await knex.select('*').from('tx').limit(global.gConfig.txs_per_snark);
-  return res
+  var res = await knex("tx")
+    .where({ status: 0 })
+    .update({ status: 1 })
+    .limit(global.gConfig.txs_per_snark);
+  return res;
 }
 
 async function getNonce(pubkeyX, pubkeyY) {
-  var res = await knex.select('nonce').from('accounts').where({ pubkeyX, pubkeyY}).first();
-  return res['nonce'];
+  var res = await knex
+    .select("nonce")
+    .from("accounts")
+    .where({ pubkeyX, pubkeyY })
+    .first();
+  return res["nonce"];
 }
 
 async function getIndex(pubkeyX, pubkeyY) {
-  var res = await knex.select('index').from('accounts').where({ pubkeyX, pubkeyY}).first();
-  return res['index'];
+  var res = await knex
+    .select("index")
+    .from("accounts")
+    .where({ pubkeyX, pubkeyY })
+    .first();
+  return res["index"];
 }
 
-// genesis state of co-ordinator 
+// genesis state of co-ordinator
 async function AddGenesisState() {
-  var genesis = await utils.readGenesis()
-  logger.info("writing accounts from genesis to DB", { AccountCount: genesis.accounts.length })
+  var genesis = await utils.readGenesis();
+  logger.info("writing accounts from genesis to DB", {
+    AccountCount: genesis.accounts.length
+  });
   genesis.accounts.forEach(account => {
-    console.log(account.pubkeyX)
-    var newAccount = new Account(account.index, account.pubkeyX, account.pubkeyY, account.balance, account.nonce, account.tokenType)
-    newAccount.save()
+    console.log(account.pubkeyX);
+    var newAccount = new Account(
+      account.index,
+      account.pubkeyX,
+      account.pubkeyY,
+      account.balance,
+      account.nonce,
+      account.tokenType
+    );
+    newAccount.save();
   });
 }
 
-// get all accounts in current state 
+// get all accounts in current state
 async function getAllAccounts() {
-  var results = await knex.select('*').from('accounts').orderBy('index', 'asc')
-  var accounts = Array()
+  var results = await knex
+    .select("*")
+    .from("accounts")
+    .orderBy("index", "asc");
+  var accounts = Array();
   for (var i = 0; i < results.length; i++) {
-    var leaf = {}
-    leaf['pubKey_x'] = results[i].pubkeyX;
-    leaf['pubKey_y'] = results[i].pubkeyY;
-    leaf['balance'] = results[i].balance;
-    leaf['nonce'] = results[i].nonce;
-    leaf['token_type'] = results[i].tokenType;
-    accounts.push(leaf)
+    var leaf = {};
+    leaf["pubKey_x"] = results[i].pubkeyX;
+    leaf["pubKey_y"] = results[i].pubkeyY;
+    leaf["balance"] = results[i].balance;
+    leaf["nonce"] = results[i].nonce;
+    leaf["token_type"] = results[i].tokenType;
+    accounts.push(leaf);
   }
-  return accounts
+  return accounts;
 }
 
 export default {
@@ -63,4 +86,4 @@ export default {
   getIndex,
   getAllAccounts,
   AddGenesisState
-}
+};

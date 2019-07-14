@@ -1,6 +1,6 @@
 import utils from './helpers/utils';
 import zkSnark from 'snarkjs';
-import fs from 'fs';
+import fs from 'fs'
 // const circuitDef = JSON.parse(fs.readFileSync("../snark/trasfer.cir", "utf8"));
 // const circuit = new zkSnark.Circuit(circuitDef);
 // const vk_proof = JSON.parse(fs.readFileSync("../snark/myCircuit.vk_proof", "utf8"));

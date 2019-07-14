@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "coordinator": "babel-node src/index.js",
+    "setup": "babel-node config/secret.js",
     "create-DB": "node DB/createDB.js",
     "migration": "knex migrate:latest --knexfile=DB/knexfile.js",
     "redo": "knex-migrate redo --knexfile=DB/knexfile.js --migrations=DB/migrations",
     "send-tx": "babel-node src/sendTestRequests.js",
     "test": " ./node_modules/mocha/bin/mocha --require babel-core/register --require babel-polyfill --exit",
-    "knex":"knex"
+    "knex": "knex"
   },
   "author": "Vaibhav Chellani <vaibhavchellani223@gmail.com>",
   "license": "ISC",

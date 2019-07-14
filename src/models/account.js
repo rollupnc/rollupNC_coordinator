@@ -24,7 +24,7 @@ export default class Account {
     return result;
   }
 
-  MIMC() {
+  hashAccount() {
     var leafHash = mimcjs.multiHash([
       this.pubkeyX,
       this.pubkeyY,

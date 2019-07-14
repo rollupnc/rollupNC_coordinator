@@ -1,8 +1,9 @@
-const fs = require('fs');
-const bigInt = require('snarkjs').bigInt
-const eddsa = require('../circomlib/src/eddsa.js')
-const {stringifyBigInts, unstringifyBigInts} = require('../src/snark_utils/stringifybigint.js')
-let configFile = require('./config.json')
+import fs from 'fs'
+import {bigInt} from 'snarkjs'
+import eddsa from '../circomlib/src/eddsa.js'
+import {stringifyBigInts, unstringifyBigInts} from '../src/snark_utils/stringifybigint.js'
+import configFile from './config.json'
+import Account from '../src/models/account.js'
 
 const length = 64
 
@@ -23,18 +24,41 @@ const prvkey = Buffer.from(
     'hex'
 )
 
-console.log('prvkey:', stringifyBigInts(prvkeyInt))
+const prvkeyString = stringifyBigInts(prvkeyInt)
+
+console.log('prvkey:', prvkeyString)
 
 const pubkey = eddsa.prv2pub(prvkey)
+const pubkeyString = stringifyBigInts(pubkey)
 
-console.log('pubkey:', stringifyBigInts(pubkey))
+console.log('pubkey:', pubkeyString)
 
 configFile.development.user = user;
 configFile.development.password = password;
-configFile.development.pubkey = stringifyBigInts(pubkey);
-configFile.development.prvkey = stringifyBigInts(prvkeyInt);
+configFile.development.pubkey = pubkeyString;
+configFile.development.prvkey = prvkeyString;
 
-config = JSON.stringify(configFile)
+const config = JSON.stringify(configFile, null, 4)
 
 fs.writeFileSync('./config/config.json', config)
+
+const zeroLeaf = new Account(0,"0","0",0,0,0);
+const coordinatorLeaf = new Account(
+    1,
+    pubkeyString[0],
+    pubkeyString[1],
+    0,
+    0,
+    0
+)
+
+const genesisObj = {
+    "accounts": [
+        zeroLeaf,
+        coordinatorLeaf
+    ]
+}
+
+const genesis = JSON.stringify(genesisObj, null, 4)
+fs.writeFileSync('./config/genesis.json', genesis)
 

@@ -1,5 +1,5 @@
-import { prv2pub } from '../circomlib/src/eddsa';
-import Account from '../src/account';
+const { prv2pub } = require('../circomlib/src/eddsa');
+const Account = require('../src/account');
 
 
 class User {

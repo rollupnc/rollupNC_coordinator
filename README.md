@@ -10,7 +10,10 @@ Acts as a co-ordinator between users for RollupNC
 npm i
 ```
 ## Setup coordinator prvkey and DB password
+
+(from root directory)
 ```bash
+cp config/config-sample.json config/config.json
 npm run setup
 ```
 NB: you can manually change the secrets in `config.json` instead of running `npm run setup`.

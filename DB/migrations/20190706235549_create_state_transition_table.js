@@ -1,5 +1,5 @@
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable("state_transition", function(t) {
+  return knex.schema.createTable("state_transitions", function(t) {
     t.string("txRoot")
       .primary()
       .unique()
@@ -14,5 +14,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTableIfExists("state_transition");
+  return knex.schema.dropTableIfExists("state_transitions");
 };

@@ -9,7 +9,7 @@ const rollup = new web3.eth.Contract(
   "0x21b19C05D9FF933F631feA2c16F09e1C04F9C769"
 );
 
-const getDepositNum = () => knex("deposits").max("block_number");
+const getDepositNum = () => knex("deposits").max("blockNumber");
 
 const getDeposits = () => knex("deposits").select("*");
 
@@ -37,7 +37,7 @@ const asyncInterval = (fn, ms) => {
 const saveDeposits = async () => {
   asyncInterval(async () => {
     let bn = await getDepositNum();
-    bn = bn[0]["max(`block_number`)"];
+    bn = bn[0]["max(`blockNumber`)"];
     const num = bn ? bn + 1 : 0;
     const events = await getPastEvents(num);
     for (const event of events) {
@@ -47,12 +47,12 @@ const saveDeposits = async () => {
       const x_coordinate = pArray[0].toString(10);
       const y_coordinate = pArray[1].toString(10);
       const constructedDeposit = {
-        block_number: event.blockNumber,
+        blockNumber: event.blockNumber,
         amount,
-        token_type: tokenType,
-        transaction_hash: event.transactionHash,
-        x_coordinate,
-        y_coordinate
+        tokenType: tokenType,
+        txHash: event.transactionHash,
+        pubkeyX: x_coordinate,
+        pubkeyY: y_coordinate
       };
       await insertDeposits(constructedDeposit);
     }
@@ -60,4 +60,3 @@ const saveDeposits = async () => {
 };
 
 module.exports = saveDeposits;
-

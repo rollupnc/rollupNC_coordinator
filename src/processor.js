@@ -35,7 +35,6 @@ export default class Processor {
 async function fetchTxs() {
   // TODO if number of rows in table > req txs
   var txs = await db.getMaxTxs();
-  console.log("fetched transactions", txs);
   logger.info("fetched transactions from mempool", {
     count: txs.length
   });

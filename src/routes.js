@@ -38,8 +38,8 @@ router.post("/submitTx", async function(req, res) {
     signature.S
   );
   // send tx to tx_pool
-  await addtoqueue(await utils.getConn(), tx.serialise());
-  // logger.debug("Added tx to queue")
+  await addtoqueue(await utils.getConn(), await tx.serialise());
+  logger.debug("Added tx to queue");
   res.json({ message: "Success" });
 });
 

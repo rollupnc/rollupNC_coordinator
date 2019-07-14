@@ -48,7 +48,6 @@ export default class Transaction {
   async sign(privateKey) {
     this.signature = eddsa.signMiMC(privateKey, await hash(this));
     this.R1 = this.signature.R8[0];
-    console.log("sigs", this.R1, this.signature.R8[0]);
     this.R2 = this.signature.R8[1];
     this.S = this.signature.S;
     return this.signature;
@@ -116,25 +115,10 @@ export default class Transaction {
   async save(_status) {
     // assign Indexes
     var indexes = await this.findIndex();
-    console.log(
-      await hash(this),
-      this.fromX,
-      this.fromY,
-      indexes[0],
-      this.toX,
-      this.toY,
-      this.nonce,
-      indexes[1],
-      this.tokenType,
-      this.amount,
-      this.R1,
-      this.R2,
-      this.S,
-      _status
-    );
+
     // insert tx into DB and/or update
     var result = await knex("tx").insert({
-      hash: await hash(this),
+      hash: await hash(this).toString(),
       fromX: this.fromX,
       fromY: this.fromY,
       fromIndex: indexes[0],

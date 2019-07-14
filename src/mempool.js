@@ -19,8 +19,7 @@ export default class Mempool {
     ch.consume(
       q,
       async msg => {
-        var txCount = await db.getTxCount();
-        console.log("Total transactions in mempool", txCount);
+        // var txCount = await db.getTxCount();
         var tx = utils.JSON2Tx(msg.content);
         // TODO add all  validation components here
         // 1. Check all input lengths

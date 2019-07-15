@@ -34,24 +34,6 @@ async function createTxs() {
   return [tx1, tx2, tx3, tx4];
 }
 
-<<<<<<< HEAD
-describe("Prepare Tx", () => {
-  beforeEach(async () => {
-    await knex.migrate.latest();
-    await Zero.to_account().save();
-    await Coordinator.to_account().save();
-    await Alice.to_account().save();
-    await Bob.to_account().save();
-  });
-  afterEach(async () => {
-    await knex("accounts").del();
-  });
-  it("should repare txs sucessfully", async () => {
-    const txs = await createTxs();
-    await prepTxs(txs);
-  });
-});
-=======
 
 describe('Prepare Tx', () => {
     beforeEach(async () => {
@@ -69,4 +51,3 @@ describe('Prepare Tx', () => {
         await prepTxs(txs)
     })
 })
->>>>>>> fix relative paths in tests

@@ -27,7 +27,7 @@ console.log('root', zeroTree.root)
 var zeroCache = [stringifyBigInts(zeroHash)]
 
 for (var i = depth - 1; i >= 0; i--){
-    zeroCache.push(stringifyBigInts(zeroTree.innerNodes[i][0]))
+    zeroCache.unshift(stringifyBigInts(zeroTree.innerNodes[i][0]))
 }
 
 fs.writeFileSync('./config/zeroCache.json', JSON.stringify(zeroCache, null, 4))

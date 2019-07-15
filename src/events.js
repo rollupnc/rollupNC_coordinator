@@ -54,7 +54,7 @@ const saveDeposits = async () => {
       )
       const depositHash = deposit.hashAccount()
       const constructedDeposit = {
-        txHash: event.txHash,
+        txHash: event.transactionHash,
         blockNumber: event.blockNumber,
         pubkeyX,
         pubkeyY,

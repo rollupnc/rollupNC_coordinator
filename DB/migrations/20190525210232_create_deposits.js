@@ -8,7 +8,6 @@ module.exports = {
       table.integer("amount").notNullable();
       table.integer("tokenType").notNullable();
       table.string("depositHash");
-      table.integer("blockNumber").notNullable();
     }),
   down: knex => knex.schema.dropTable("deposits")
 };

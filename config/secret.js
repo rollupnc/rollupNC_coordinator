@@ -1,7 +1,7 @@
 import fs from 'fs'
 import {bigInt} from 'snarkjs'
 import eddsa from '../circomlib/src/eddsa.js'
-import {stringifyBigInts, unstringifyBigInts} from '../src/snark_utils/stringifybigint.js'
+import {stringifyBigInts, unstringifyBigInts} from '../src/helpers/stringifybigint.js'
 import configFile from './config.json'
 import Account from '../src/models/account.js'
 

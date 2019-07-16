@@ -9,13 +9,18 @@ Acts as a co-ordinator between users for RollupNC
 ```bash
 npm i
 ```
-## Setup coordinator prvkey and DB password
+## Setup 
+
+- randomly generate coordinator prvkey and pubkey,
+- set DB password, and
+- initialise `zeroCache`.
 
 (from root directory)
 ```bash
 cp config/config-sample.json config/config.json
 npm run setup
 ```
+
 NB: you can manually change the secrets in `config.json` instead of running `npm run setup`.
 
 ## Create Migration 

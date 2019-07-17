@@ -6,6 +6,8 @@ Acts as a co-ordinator between users for RollupNC
 
 > Please ensure you have `rabbitmq-server` running in background
 
+Install node version 10.16.0, possibly using nvm
+
 ```bash
 npm i
 ```

@@ -1,13 +1,8 @@
 import utils from "./helpers/utils";
 import config from "../config/config.js";
 import logger from "./helpers/logger";
-import createProof from "./circuit";
-import db from "./db";
+import db from "./db/db";
 import Transaction from "./models/transaction";
-import account from "./snark_utils/generate_accounts";
-
-const q = global.gConfig.tx_queue;
-const maxTxs = global.gConfig.txs_per_snark;
 
 // processor is a polling service that will routinely pick transactions
 // from rabbitmq queue and process them to provide as input to the ciruit
@@ -38,29 +33,48 @@ async function fetchTxs() {
   logger.info("fetched transactions from mempool", {
     count: txs.length
   });
-  if (txs.length <= 0) {
-    return;
+  if (txs.length > 0) {
+    var paddedTxs = pad(txs)
   }
-  // txs = pad(txs);
-  // sanitise the transactions for proof
-  // TODO remove after POC
-
-  // const transactions = await Promise.all(
-  //   txs.map(async tx => {
-  //     var transaction = {};
-  //     transaction["fromX"] = tx.fromX;
-  //     transaction["fromY"] = tx.fromY;
-  //     transaction["fromIndex"] = await db.getIndex(tx.fromX, tx.fromY);
-  //     transaction["toX"] = tx.toX;
-  //     transaction["toY"] = tx.toY;
-  //     transaction["toIndex"] = await db.getIndex(tx.toX, tx.toY);
-  //     transaction["nonce"] = tx.nonce;
-  //     transaction["amount"] = tx.amount;
-  //     transaction["tokenType"] = tx.tokenType;
-  //     transaction["signature"] = utils.toSignature(tx.R1, tx.R2, tx.S);
-  //     return transaction;
-  //   })
-  // );
-  // createProof(transactions);
   return;
+}
+
+// genEmptyTx generates empty transactions for coordinator
+// i.e transaction from and to coordinator
+function genEmptyTxs(count) {
+  var txs = [];
+  initialNonce = db.getCoordinatorNonce();
+  pubkey = global.gConfig.pubkey;
+  for (var i = 0; i < count; i++) {
+    let tx = new Transaction(
+      pubKey[0],
+      pubKey[1],
+      0,
+      pubKey[0],
+      pubKey[1],
+      initialNonce + i,
+      0,
+      0
+    );
+
+    tx.sign(global.gConfig.prvkey);
+    tx.addIndex();
+    txs.push(tx);
+    db.incrementCoordinatorNonce(1);
+  }
+}
+
+// pads exisitng tx array with more tx's from and to coordinator account
+// in order to fill up the circuit inputs
+function pad(txs) {
+  const maxLen = global.gConfig.txs_per_snark;
+  if (txs.length > maxLen) {
+    throw new Error(
+      `Length of input array ${txs.length} is longer than max_length ${maxLen}`
+    );
+  }
+  const numOfTxsToPad = maxLen - txs.length;
+  var padTxs = genEmptyTxs(numOfTxsToPad);
+  txs.push(padTxs);
+  return txs;
 }

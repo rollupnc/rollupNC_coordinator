@@ -2,9 +2,9 @@ import Processor from "./processor.js";
 import Poller from "./models/poller";
 import logger from "./helpers/logger";
 import Mempool from "./mempool.js";
-import DB from "./db";
+import DB from "./db/db.js";
 import app from "./app";
-import events from "./events";
+import depositEvents from "./events/depositEvents";
 
 process.env.NODE_ENV = "development";
 
@@ -17,10 +17,10 @@ const mempool = new Mempool();
 
 // start api server
 const server = app.listen(global.gConfig.port, () => {
-  DB.AddGenesisState();
+  DB.addGenesisState();
   processor.start(poller);
   mempool.StartSync();
-  events();
+  depositEvents();
 
   logger.info("Started listening for transactions", {
     port: global.gConfig.port

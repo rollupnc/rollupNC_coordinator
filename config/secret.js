@@ -62,3 +62,7 @@ const genesisObj = {
 const genesis = JSON.stringify(genesisObj, null, 4)
 fs.writeFileSync('./config/genesis.json', genesis)
 
+export default{
+    zeroLeaf,
+    coordinatorLeaf
+}

@@ -2,7 +2,7 @@ import utils from "./helpers/utils";
 import config from "../config/config.js";
 import logger from "./helpers/logger";
 import knex from "../DB/dbClient";
-import db from "./db";
+import db from "./db/db.js";
 
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
@@ -19,8 +19,10 @@ export default class Mempool {
     ch.consume(
       q,
       async msg => {
-        // var txCount = await db.getTxCount();
+        var txCount = await db.getTxCount();
+        console.log('txCount', txCount)
         var tx = utils.JSON2Tx(msg.content);
+        
         // TODO add all  validation components here
         // 1. Check all input lengths
         // 2. Check signature

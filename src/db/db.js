@@ -1,10 +1,10 @@
 // All database interactions to be performed from here
-import config from "../config/config.js";
-import Account from "./models/account.js";
+import config from "../../config/config.js";
+import Account from "../models/account.js";
 import fs from "fs";
-import utils from "./helpers/utils.js";
-import logger from "./helpers/logger.js";
-import knex from "../DB/dbClient.js";
+import utils from "../helpers/utils.js";
+import logger from "../helpers/logger.js";
+import knex from "../../DB/dbClient.js";
 
 const bigInt = require("snarkjs").bigInt;
 
@@ -60,7 +60,7 @@ async function addGenesisState() {
     AccountCount: genesis.accounts.length
   });
   genesis.accounts.forEach(account => {
-    console.log(account.pubkeyX);
+    // console.log(account.pubkeyX);
     var newAccount = new Account(
       account.index,
       account.pubkeyX,
@@ -81,12 +81,15 @@ async function getAllAccounts() {
     .orderBy("index", "asc");
   var accounts = Array();
   for (var i = 0; i < results.length; i++) {
-    var leaf = {};
-    leaf["pubKey_x"] = results[i].pubkeyX;
-    leaf["pubKey_y"] = results[i].pubkeyY;
-    leaf["balance"] = results[i].balance;
-    leaf["nonce"] = results[i].nonce;
-    leaf["token_type"] = results[i].tokenType;
+    var result = results[i]
+    var leaf = new Account(
+      result.index,
+      result.pubkeyX,
+      resuplt.pubkeyY,
+      result.balance,
+      result.nonce,
+      result.tokenType
+    )
     accounts.push(leaf);
   }
   return accounts;

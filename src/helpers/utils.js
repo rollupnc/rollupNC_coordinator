@@ -172,6 +172,45 @@ async function readGenesis() {
   return genesisJSON;
 }
 
+// genEmptyTx generates empty transactions for coordinator
+// i.e transaction from and to coordinator
+function genEmptyTxs(count) {
+  var txs = [];
+  initialNonce = db.getCoordinatorNonce();
+  pubkey = global.gConfig.pubkey;
+  for (var i = 0; i < count; i++) {
+    let tx = new Transaction(
+      pubKey[0],
+      pubKey[1],
+      pubKey[0],
+      pubKey[1],
+      initialNonce + i,
+      0,
+      0
+    );
+
+    tx.sign(global.gConfig.prvkey);
+    tx.addIndex();
+    txs.push(tx);
+    db.incrementCoordinatorNonce(1);
+  }
+}
+
+// pads exisitng tx array with more tx's from and to coordinator account
+// in order to fill up the circuit inputs
+function pad(txs) {
+  const maxLen = global.gConfig.txs_per_snark;
+  if (txs.length > maxLen) {
+    throw new Error(
+      `Length of input array ${txs.length} is longer than max_length ${maxLen}`
+    );
+  }
+  const numOfTxsToPad = maxLen - txs.length;
+  var padTxs = genEmptyTxs(numOfTxsToPad);
+  txs.push(padTxs);
+  return txs;
+}
+
 export default {
   getConn,
   conn,
@@ -180,5 +219,6 @@ export default {
   prepTxs,
   JSON2Tx,
   readGenesis,
-  toSignature
+  toSignature,
+  pad
 };

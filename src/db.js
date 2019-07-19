@@ -22,6 +22,19 @@ async function getMaxTxs() {
   return res;
 }
 
+// getCoordinatorNonce fetches coordinator nonce
+async function getCoordinatorNonce() {
+  var res = await knex("accounts").where({ index: 1 });
+  return res;
+}
+
+async function incrementCoordinatorNonce(count) {
+  var res = await knex("accounts")
+    .where({ index: 1 })
+    .increment("nonce", count);
+  logger.info("Incrementing nonce of coordinator", { results: res });
+}
+
 async function getNonce(pubkeyX, pubkeyY) {
   var res = await knex
     .select("nonce")
@@ -41,7 +54,7 @@ async function getIndex(pubkeyX, pubkeyY) {
 }
 
 // genesis state of co-ordinator
-async function AddGenesisState() {
+async function addGenesisState() {
   var genesis = await utils.readGenesis();
   logger.info("writing accounts from genesis to DB", {
     AccountCount: genesis.accounts.length
@@ -85,5 +98,7 @@ export default {
   getNonce,
   getIndex,
   getAllAccounts,
-  AddGenesisState
+  addGenesisState,
+  incrementCoordinatorNonce,
+  getCoordinatorNonce
 };

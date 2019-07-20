@@ -70,6 +70,10 @@ async function addGenesisState() {
       account.tokenType
     );
     newAccount.save();
+    console.log(
+      'account',
+      newAccount
+    )
   });
 }
 

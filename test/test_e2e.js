@@ -1,25 +1,28 @@
 import request from "request";
 import Transaction from "../src/models/transaction.js";
 import Poller from "../src/models/poller.js";
-import {zeroLeaf, coordinatorLeaf} from "../config/secret.js"
 
 const url = "http://localhost:3000/submitTx";
 
-var sender = coordinatorLeaf;
-var receiver = coordinatorLeaf;
+const pubkey = global.gConfig.pubkey;
 const prvkey = global.gConfig.prvkey;
+
+console.log('pubkey', pubkey)
+console.log('prvkey', prvkey)
+
+var nonce = 0;
 
 const poller = new Poller(1000);
 poller.poll();
 poller.onPoll(async () => {
   submitTx(
-    sender, 
-    receiver, 
-    sender.nonce, 
-    0, 
-    0
+    pubkey[0], pubkey[1], 1, 
+    pubkey[0], pubkey[1], 1,  
+    nonce, 
+    0, //amount
+    0  //tokenType
   );
-  sender.nonce++;
+  nonce++;
   // tmp = sender;
   // sender = receiver;
   // receiver = tmp;
@@ -27,15 +30,17 @@ poller.onPoll(async () => {
 });
 
 
-async function submitTx(from, to, nonce, amount, tokenType) {
-  console.log(`${from.index} send ${to.index} ${amount} of token ${tokenType}`);
+async function submitTx(
+  fromX, fromY, fromIndex,
+  toX, toY, toIndex,
+  nonce, amount, tokenType) {
   const tx = new Transaction(
-    from.pubkeyX,
-    from.pubkeyY,
-    from.index,
-    to.pubkeyX,
-    to.pubkeyY,
-    to.index,
+    fromX,
+    fromY,
+    fromIndex,
+    toX,
+    toY,
+    toIndex,
     nonce,
     amount,
     tokenType,
@@ -61,7 +66,8 @@ async function submitTx(from, to, nonce, amount, tokenType) {
   request.post({ url, json }, function(error, response, body) {
     if (error) {
       return console.error("TX failed:", error);
+    } else {
+      console.log("Tx successful!  Server responded with:", body);
     }
-    console.log("Tx successful!  Server responded with:", body);
   });
 }

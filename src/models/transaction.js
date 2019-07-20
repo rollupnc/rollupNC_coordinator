@@ -1,6 +1,8 @@
 import knex from "../../DB/dbClient";
 import eddsa from "../../circomlib/src/eddsa.js";
 import mimcjs from "../../circomlib/src/mimc7.js";
+import AccountTable from "../db/accountTable.js"
+
 import {stringifyBigInts, unstringifyBigInts} from "../helpers/stringifybigint"
 
 // class transaction
@@ -51,7 +53,10 @@ export default class Transaction {
      * @param {Buffer} privateKey
      */
     async sign(privateKey) {
-      this.signature = eddsa.signMiMC(privateKey, await this.hashTx());
+      this.signature = eddsa.signMiMC(
+        Buffer.from(privateKey, 'hex'), 
+        await unstringifyBigInts(this.hashTx())
+      );
       this.R8x = this.signature.R8[0];
       this.R8y = this.signature.R8[1];
       this.S = this.signature.S;
@@ -78,22 +83,23 @@ export default class Transaction {
           txRoot: "",
         }
       ];
-      console.log(
-        'serialising tx',
-        tx
-      )
       return new Buffer(JSON.stringify(tx));
     }
 
-    // async validate() {
-    //   // validate the tx with all the checks snark will do
-    //   // return true/false
+    isValid() {
+      // validate the tx with all the checks snark will do
+      // return true/false
 
-    //   this.checkTokenTypes()
-    //   this.checkSignature()
-    //   this.checkSenderBalance()
-
-    // }
+      if (
+        this.checkTokenTypes() &&
+        this.checkSignature() &&
+        this.checkSenderBalance()
+      ){
+        return true
+      } else{
+        return false
+      }
+    }
 
     async addIndex() {
       const fromAccount = await knex("accounts")
@@ -104,27 +110,6 @@ export default class Transaction {
         .where({ pubkeyX: this.toX })
         .first();
       this.toIndex = toAccount.index;
-    }
-
-    // finds index based on nonce+fromX+tokenType
-    // TODO enhance by searching balance > amount
-    async findIndex() {
-      const fromAccount = await knex("accounts")
-        .where({
-          pubkeyX: this.fromX,
-          pubkeyY: this.fromY
-          // tokenType: this.tokenType
-        })
-        .first();
-      const toAccount = await knex("accounts")
-        .where({
-          pubkeyX: this.toX,
-          pubkeyY: this.toY
-          // tokenType: this.tokenType
-        })
-        .first();
-
-      return [fromAccount.index, toAccount.index];
     }
 
     async save(_status) {
@@ -200,12 +185,28 @@ export default class Transaction {
         this.fromIndex,
         stringifyBigInts(this.toX),
         stringifyBigInts(this.toY),
-        this.amount,
         this.nonce,
+        this.amount,
         this.tokenType
       ]);
 
       return txHash;
+    }
+
+
+    // checks
+
+    async checkTokenTypes(){
+      const sender = await AccountTable.getAccountFromPubkey(this.fromX, this.fromY)
+      const receiver = await AccountTable.getAccountFromPubkey(this.toX, this.toY)
+      const tokenCheck = await (
+        await sender.tokenType == await receiver.tokenType ||
+        await receiver.tokenType == 0
+      )
+      if (!tokenCheck){
+        throw new Error("token types do not match")
+      } 
+      return tokenCheck
     }
 
     checkSignature(){
@@ -214,11 +215,24 @@ export default class Transaction {
           S: this.S
       }
       const signed = eddsa.verifyMiMC(
-          this.hash, signature, [this.fromX, this.fromY]
+          unstringifyBigInts(this.hash), 
+          unstringifyBigInts(signature), 
+          unstringifyBigInts([this.fromX, this.fromY])
       )
       if (!signed){
-          throw "transaction was not signed by sender"
+          throw new Error("transaction was not signed by sender")
       }
+      return signed
+    }
+
+    async checkSenderBalance(){
+      const sender = await AccountTable.getAccountFromPubkey(this.fromX, this.fromY)
+      const balanceCheck = await sender.balance >= this.amount
+      if (!balanceCheck){
+        throw new Error("sender does not have sufficient balance")
+      } 
+      return balanceCheck
+
     }
 
 }

@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 import utils from "./helpers/utils";
-import eddsa from "../circomlib/src/eddsa.js";
 import logger from "./helpers/logger";
 import Transaction from "./models/transaction.js";
 
@@ -42,10 +41,14 @@ router.post("/submitTx", async function(req, res) {
     R8y,
     S
   );
-  // send tx to tx_pool
-  await addtoqueue(await utils.getConn(), await tx.serialise());
-  logger.debug("Added tx to queue");
-  res.json({ message: "Success" });
+  // validate tx
+  if (tx.isValid()){
+    // if valid, send tx to tx_pool
+    await addtoqueue(await utils.getConn(), await tx.serialise());
+    logger.debug("Added tx to queue");
+    res.json({ message: "Success" });
+  }
+
 });
 
 // get transaction hash from transaction params

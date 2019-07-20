@@ -24,9 +24,11 @@ const prvkey = Buffer.from(
     'hex'
 )
 
+console.log('prvkey buffer', prvkey)
+
 const prvkeyString = stringifyBigInts(prvkeyInt)
 
-console.log('prvkey:', prvkeyString)
+console.log('prvkey string', prvkeyString)
 
 const pubkey = eddsa.prv2pub(prvkey)
 const pubkeyString = stringifyBigInts(pubkey)
@@ -42,8 +44,8 @@ const config = JSON.stringify(configFile, null, 4)
 
 fs.writeFileSync('./config/config.json', config)
 
-const zeroLeaf = new Account(0,"0","0",0,0,0);
-const coordinatorLeaf = new Account(
+var zeroLeaf = new Account(0,"0","0",0,0,0);
+var coordinatorLeaf = new Account(
     1,
     pubkeyString[0],
     pubkeyString[1],

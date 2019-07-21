@@ -27,7 +27,6 @@ export default class Processor {
       });
       console.log("lock", this.lock)
       if (!this.lock){
-        this.lock = true
         this.processTxs(txs)
       }
       poller.poll(); // Go for the next poll
@@ -44,12 +43,13 @@ export default class Processor {
   async processTxs(txs) {
     // TODO if number of rows in table > req txs
     if (await txs.length > 0) {
+      this.lock = true;
       var paddedTxs = await pad(txs)
       console.log(
         'paddedTxs', await paddedTxs.length,
         await paddedTxs
       )
-      // var txTree = new TxTree(paddedTxs)
+      var txTree = new TxTree(paddedTxs)
       // var accounts = accountTasyncable.getAllAccounts()
       // var accountTree = new AccountTree(accounts)
       // var stateTransition = accountTree.processTxArray(txTree)

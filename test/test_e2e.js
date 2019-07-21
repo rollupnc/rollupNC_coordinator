@@ -2,7 +2,6 @@ import request from "request";
 import Transaction from "../src/models/transaction.js";
 import accountTable from "../src/db/accountTable.js"
 import Poller from "../src/events/poller.js";
-import process from "process"
 import fs from "fs"
 
 const url = "http://localhost:3000/submitTx";
@@ -29,7 +28,6 @@ poller.onPoll(async () => {
     1  //tokenType
   );
   testCount++;
-  console.log('new count', testCount)
   fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
   // tmp = sender;
   // sender = receiver;

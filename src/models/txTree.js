@@ -1,5 +1,6 @@
 import Tree from "./tree.js";
 import { hashTx } from "./transaction.js"
+import knex from "../../DB/dbClient.js";
 
 export default class TxTree extends Tree{
     constructor(

@@ -46,11 +46,15 @@ export default class Processor {
       this.lock = true;
       var paddedTxs = await padTxs(txs)
       var txTree = new TxTree(paddedTxs)
+
       var accounts = await accountTable.getAllAccounts()
       var paddedAccounts = await accountTable.padAccounts(accounts)
+      
       var accountTree = new AccountTree(paddedAccounts, global.gConfig.balance_depth)
+      accountTree.save()
       var sparseProof = accountTree.getSparseProof()
       console.log(sparseProof)
+      
       // var stateTransition = accountTree.processTxArray(txTree)
       // var inputs = getCircuitInput(stateTransition)
       this.lock = false

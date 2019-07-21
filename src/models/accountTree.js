@@ -2,6 +2,7 @@ import Tree from "./tree.js"
 import Transaction from "./transaction.js"
 import {hashAccount} from "./account.js"
 import fs from 'fs'
+import knex from "../../DB/dbClient.js";
 
 const zeroCache = JSON.parse(fs.readFileSync('./config/zeroCache.json'))
 
@@ -15,6 +16,7 @@ export default class AccountTree extends Tree{
         this.fullHeight = fullHeight
     }
 
+
     getSparseProof(){
         const subtreeHeight = Math.log2(this.accounts.length);
         const subtreeDepth = this.fullHeight - subtreeHeight
@@ -23,6 +25,27 @@ export default class AccountTree extends Tree{
             sparseProof.push(zeroCache[subtreeDepth - i])
         }
         return sparseProof
+    }
+
+    async save(){
+        for (var i = 0; i < this.leafNodes.length; i++){
+            var result = await knex.insert({
+                depth: this.depth,
+                index: i,
+                hash: this.leafNodes[i]
+            }).into('account_tree')
+            .onDuplicateUpdate('hash');
+        }
+        for (var i = 0; i < this.innerNodes.length; i++){
+            for (var j = 0; j < this.innerNodes[i].length; j++){
+                var result = await knex.insert({
+                    depth: i,
+                    index: j,
+                    hash: this.innerNodes[i][j]
+                }).into('account_tree')
+                .onDuplicateUpdate('hash');
+            }
+        }
     }
 
     processTxArray(txTree){

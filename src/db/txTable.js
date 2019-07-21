@@ -14,6 +14,11 @@ async function getMaxTxs() {
         .where({ status: 0 })
         .limit(global.gConfig.txs_per_snark)
         .orderBy("nonce", "asc");
+    var update = await knex("tx")
+        .where({ status: 0 })
+        .update({ status: 1 })
+        .limit(global.gConfig.txs_per_snark)
+        .orderBy("nonce", "asc");
     var txs = Array();
     for (var i = 0; i < results.length; i++) {
         var result = results[i]

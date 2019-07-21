@@ -192,8 +192,11 @@ export default class Transaction {
       const sender = await AccountTable.getAccountFromPubkey(this.fromX, this.fromY)
       const receiver = await AccountTable.getAccountFromPubkey(this.toX, this.toY)
       const tokenCheck = await (
-        await sender.tokenType == await receiver.tokenType ||
-        await receiver.tokenType == 0
+        await sender.tokenType == this.tokenType &&
+        (
+          await sender.tokenType == await receiver.tokenType ||
+          await receiver.tokenType == 0
+        )
       )
       if (!tokenCheck){
         throw new Error("token types do not match")

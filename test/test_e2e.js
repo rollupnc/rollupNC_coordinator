@@ -20,7 +20,7 @@ poller.onPoll(async () => {
     alicePubkey[0], alicePubkey[1], 1,  
     nonce, 
     0, //amount
-    0  //tokenType
+    1  //tokenType
   );
   nonce++;
   // tmp = sender;

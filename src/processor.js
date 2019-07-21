@@ -1,4 +1,3 @@
-import utils from "./helpers/utils";
 import config from "../config/config.js";
 import logger from "./helpers/logger";
 import txTable from "./db/txTable"
@@ -10,51 +9,61 @@ import AccountTree from "./models/accountTree";
 // processor is a polling service that will routinely pick transactions
 // from rabbitmq queue and process them to provide as input to the ciruit
 export default class Processor {
+
+  constructor(){
+    this.lock = false;
+  }
+  
   async start(poller) {
     logger.info("starting transaction processor", {
       pollingInterval: poller.timeout
     });
     poller.poll();
-    poller.onPoll(() => {
+    poller.onPoll(async () => {
       // fetch max number of transactions | transactions available
-      processTxs();
+      var txs = await txTable.getMaxTxs();
+      logger.info("fetched transactions from mempool", {
+        count: await txs.length
+      });
+      console.log("lock", this.lock)
+      if (!this.lock){
+        this.lock = true
+        this.processTxs(txs)
+      }
       poller.poll(); // Go for the next poll
-    });
+    })
   }
-}
 
-// pick max transactions from mempool
-// provide to snark
-// TODO:
-// 1. Sort and select by fee
-// 2. Wait for X interval for max transactions to accumulate,
-//    after X create proof for available txs
+  // pick max transactions from mempool
+  // provide to snark
+  // TODO:
+  // 1. Sort and select by fee
+  // 2. Wait for X interval for max transactions to accumulate,
+  //    after X create proof for available txs
 
-async function processTxs() {
-  // TODO if number of rows in table > req txs
-  var txs = await txTable.getMaxTxs();
-  logger.info("fetched transactions from mempool", {
-    count: await txs.length
-  });
-  if (await txs.length > 0) {
-    var paddedTxs = await pad(txs)
-    console.log(
-      'paddedTxs', paddedTxs.length,
-      paddedTxs
-    )
-    // var txTree = new TxTree(paddedTxs)
-    // var accounts = accountTable.getAllAccounts()
-    // var accountTree = new AccountTree(accounts)
-    // var stateTransition = accountTree.processTxArray(txTree)
-    // var inputs = getCircuitInput(stateTransition)
+  async processTxs(txs) {
+    // TODO if number of rows in table > req txs
+    if (await txs.length > 0) {
+      var paddedTxs = await pad(txs)
+      console.log(
+        'paddedTxs', await paddedTxs.length,
+        await paddedTxs
+      )
+      // var txTree = new TxTree(paddedTxs)
+      // var accounts = accountTasyncable.getAllAccounts()
+      // var accountTree = new AccountTree(accounts)
+      // var stateTransition = accountTree.processTxArray(txTree)
+      // var inputs = getCircuitInput(stateTransition)
+      this.lock = false
+      console.log("lock", this.lock)
+    }
   }
-  return;
-}
 
+}
 
 // pads existing tx array with more tx's from and to coordinator account
 // in order to fill up the circuit inputs
-function pad(txs) {
+async function pad(txs) {
   const maxLen = global.gConfig.txs_per_snark;
   if (txs.length > maxLen) {
     throw new Error(
@@ -62,16 +71,11 @@ function pad(txs) {
     );
   }
   const numOfTxsToPad = maxLen - txs.length;
-  var padTxs = genEmptyTxs(numOfTxsToPad);
-  txs.push(padTxs);
-  console.log(
-    "=======================",
-    "len padded txs",
-    padTxs.length,
-    "==============================="
-  )
-  return txs;
+  var padTxs = await genEmptyTxs(numOfTxsToPad);
+  
+  return txs.concat(padTxs);
 }
+
 
 // genEmptyTx generates empty transactions for coordinator
 // i.e transaction from and to coordinator
@@ -93,7 +97,8 @@ async function genEmptyTxs(count) {
     );
     tx.sign(global.gConfig.prvkey);
     txs.push(tx);
-    console.log("emptyTx", i)
+    console.log("padding emptyTx", i)
     await accountTable.incrementCoordinatorNonce();
   }
+  return txs
 }

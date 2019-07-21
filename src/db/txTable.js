@@ -12,7 +12,8 @@ async function getMaxTxs() {
         .select("*")
         .from("tx")
         .where({ status: 0 })
-        .limit(global.gConfig.txs_per_snark);
+        .limit(global.gConfig.txs_per_snark)
+        .orderBy("nonce", "asc");
     var txs = Array();
     for (var i = 0; i < results.length; i++) {
         var result = results[i]

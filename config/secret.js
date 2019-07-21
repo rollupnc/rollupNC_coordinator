@@ -19,12 +19,12 @@ configFile.development.pubkey = coordinator.pubkeyString;
 configFile.development.prvkey = coordinator.prvkeyString;
 
 // Alice account
-const alice = genUser('alice', 2)
+const alice = genUser('alice', 2, 0, 0, 1) // tokenType = 1
 configFile.development.alicePubkey = alice.pubkeyString;
 configFile.development.alicePrvkey = alice.prvkeyString;
 
 // Bob account
-const bob = genUser('bob', 3)
+const bob = genUser('bob', 3, 0, 0, 1) // tokenType = 1
 configFile.development.bobPubkey = bob.pubkeyString;
 configFile.development.bobPrvkey = bob.prvkeyString;
 

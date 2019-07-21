@@ -4,11 +4,11 @@ import Poller from "../src/events/poller.js";
 
 const url = "http://localhost:3000/submitTx";
 
-const pubkey = global.gConfig.pubkey;
-const prvkey = global.gConfig.prvkey;
+const alicePubkey = global.gConfig.alicePubkey;
+const alicePrvkey = global.gConfig.alicePrvkey;
 
-console.log('pubkey', pubkey)
-console.log('prvkey', prvkey)
+console.log('alicePubkey', alicePubkey)
+console.log('alicePrvkey', alicePrvkey)
 
 var nonce = 0;
 
@@ -16,8 +16,8 @@ const poller = new Poller(1000);
 poller.poll();
 poller.onPoll(async () => {
   submitTx(
-    pubkey[0], pubkey[1], 1, 
-    pubkey[0], pubkey[1], 1,  
+    alicePubkey[0], alicePubkey[1], 1, 
+    alicePubkey[0], alicePubkey[1], 1,  
     nonce, 
     0, //amount
     0  //tokenType
@@ -48,7 +48,7 @@ async function submitTx(
     null,
     null
   );
-  await tx.sign(prvkey);
+  await tx.sign(alicePrvkey);
   const json = {
     fromX: tx.fromX,
     fromY: tx.fromY,

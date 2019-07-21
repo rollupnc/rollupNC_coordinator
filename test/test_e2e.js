@@ -1,6 +1,9 @@
 import request from "request";
 import Transaction from "../src/models/transaction.js";
+import accountTable from "../src/db/accountTable.js"
 import Poller from "../src/events/poller.js";
+import process from "process"
+import fs from "fs"
 
 const url = "http://localhost:3000/submitTx";
 
@@ -10,19 +13,24 @@ const alicePrvkey = global.gConfig.alicePrvkey;
 console.log('alicePubkey', alicePubkey)
 console.log('alicePrvkey', alicePrvkey)
 
-var nonce = 0;
-
 const poller = new Poller(1000);
 poller.poll();
+
 poller.onPoll(async () => {
+  var testCount = fs.readFileSync('./test/testCount.json')
   submitTx(
     alicePubkey[0], alicePubkey[1], 1, 
     alicePubkey[0], alicePubkey[1], 1,  
-    nonce, 
+    await accountTable.getNonce(
+      alicePubkey[0],
+      alicePubkey[1]
+    ) + testCount,
     0, //amount
     1  //tokenType
   );
-  nonce++;
+  testCount++;
+  console.log('new count', testCount)
+  fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
   // tmp = sender;
   // sender = receiver;
   // receiver = tmp;

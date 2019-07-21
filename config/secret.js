@@ -57,3 +57,7 @@ const presetGenesisObj = {
 
 const presetGenesis = JSON.stringify(presetGenesisObj, null, 4)
 fs.writeFileSync('./config/preset-genesis.json', presetGenesis)
+
+// initialise test/testCount.json at 0
+
+fs.writeFileSync('./test/testCount.json', JSON.stringify(0))

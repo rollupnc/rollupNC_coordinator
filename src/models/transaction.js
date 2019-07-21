@@ -19,7 +19,8 @@ export default class Transaction {
       _tokenType,
       R8x,
       R8y,
-      S
+      S,
+      status = 0
     ) {
       this.fromX = _fromX;
       this.fromY = _fromY;
@@ -37,7 +38,7 @@ export default class Transaction {
       this.R8y = R8y;
       this.S = S;
 
-      this.status = 0;
+      this.status = status;
 
       this.hash = this.hashTx();
 
@@ -53,7 +54,7 @@ export default class Transaction {
      * @param {Buffer} privateKey
      */
     async sign(privateKey) {
-      this.signature = eddsa.signMiMC(
+      this.signature = await eddsa.signMiMC(
         Buffer.from(privateKey, 'hex'), 
         await unstringifyBigInts(this.hashTx())
       );
@@ -83,22 +84,21 @@ export default class Transaction {
           txRoot: "",
         }
       ];
-      return new Buffer(JSON.stringify(tx));
+      return new Buffer.from(JSON.stringify(tx), 'utf8');
     }
 
     isValid() {
       // validate the tx with all the checks snark will do
       // return true/false
 
-      if (
+      return (
+        this.checkSenderExists() &&
+        this.checkReceiverExists() &&
         this.checkTokenTypes() &&
         this.checkSignature() &&
         this.checkSenderBalance()
-      ){
-        return true
-      } else{
-        return false
-      }
+      )
+
     }
 
     async addIndex() {
@@ -112,7 +112,7 @@ export default class Transaction {
       this.toIndex = toAccount.index;
     }
 
-    async save(_status) {
+    async save() {
       // // assign Indexes
       // var indexes = await this.findIndex();
 
@@ -131,7 +131,7 @@ export default class Transaction {
         R8x: this.R8x,
         R8y: this.R8y,
         S: this.S,
-        status: _status
+        status: this.status
       });
       return result;
     }
@@ -148,24 +148,6 @@ export default class Transaction {
     // checks if tx is dependent or not
     _isDependent() {
       // check and return true/false
-    }
-
-    // return JSON pretty representation of transaction
-    json() {}
-
-    // print string representation of transaction
-    toString() {
-      console.log(
-        "FromPubkey: [%v:%v], ToPubkey: [%v:%v], fromIndex: %v , toIndex: %v, amount: %v, tokenType: %v , nonce: %v, Status: %v",
-        [this.fromX, this.fromY],
-        [this.toX, this.toY],
-        this.fromIndex,
-        this.toIndex,
-        this.amount,
-        this.tokenType,
-        this.nonce,
-        this.status
-      );
     }
 
     // type
@@ -196,6 +178,16 @@ export default class Transaction {
 
     // checks
 
+    async checkSenderExists(){
+      const sender = await AccountTable.getAccountFromPubkey(this.fromX, this.fromY)
+      return await sender.index >= 0
+    }
+
+    async checkReceiverExists(){
+      const receiver = await AccountTable.getAccountFromPubkey(this.toX, this.toY)
+      return await receiver.index >= 0
+    }
+
     async checkTokenTypes(){
       const sender = await AccountTable.getAccountFromPubkey(this.fromX, this.fromY)
       const receiver = await AccountTable.getAccountFromPubkey(this.toX, this.toY)
@@ -223,6 +215,7 @@ export default class Transaction {
           throw new Error("transaction was not signed by sender")
       }
       return signed
+      return true
     }
 
     async checkSenderBalance(){

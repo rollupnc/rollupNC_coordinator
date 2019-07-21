@@ -1,4 +1,5 @@
 import Tree from "./tree.js";
+import { hashTx } from "./transaction.js"
 
 export default class TxTree extends Tree{
     constructor(

@@ -1,8 +1,8 @@
 import Processor from "./processor.js";
-import Poller from "./models/poller";
+import Poller from "./events/poller";
 import logger from "./helpers/logger";
 import Mempool from "./mempool.js";
-import DB from "./db/db.js";
+import accountTable from "./db/accountTable";
 import app from "./app";
 import depositEvents from "./events/depositEvents";
 
@@ -17,7 +17,7 @@ const mempool = new Mempool();
 
 // start api server
 const server = app.listen(global.gConfig.port, () => {
-  DB.addGenesisState();
+  accountTable.addGenesisState();
   processor.start(poller);
   mempool.StartSync();
   depositEvents();

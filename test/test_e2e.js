@@ -1,6 +1,6 @@
 import request from "request";
 import Transaction from "../src/models/transaction.js";
-import Poller from "../src/models/poller.js";
+import Poller from "../src/events/poller.js";
 
 const url = "http://localhost:3000/submitTx";
 

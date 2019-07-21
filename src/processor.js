@@ -1,8 +1,11 @@
 import utils from "./helpers/utils";
 import config from "../config/config.js";
 import logger from "./helpers/logger";
-import db from "./db/db";
+import txTable from "./db/txTable"
+import accountTable from "./db/accountTable"
 import Transaction from "./models/transaction";
+import TxTree from "./models/txTree";
+import AccountTree from "./models/accountTree";
 
 // processor is a polling service that will routinely pick transactions
 // from rabbitmq queue and process them to provide as input to the ciruit
@@ -14,7 +17,7 @@ export default class Processor {
     poller.poll();
     poller.onPoll(() => {
       // fetch max number of transactions | transactions available
-      fetchTxs();
+      processTxs();
       poller.poll(); // Go for the next poll
     });
   }
@@ -27,44 +30,29 @@ export default class Processor {
 // 2. Wait for X interval for max transactions to accumulate,
 //    after X create proof for available txs
 
-async function fetchTxs() {
+async function processTxs() {
   // TODO if number of rows in table > req txs
-  var txs = await db.getMaxTxs();
+  var txs = await txTable.getMaxTxs();
   logger.info("fetched transactions from mempool", {
-    count: txs.length
+    count: await txs.length
   });
-  if (txs.length > 0) {
-    var paddedTxs = pad(txs)
+  if (await txs.length > 0) {
+    var paddedTxs = await pad(txs)
+    console.log(
+      'paddedTxs', paddedTxs.length,
+      paddedTxs
+    )
+    // var txTree = new TxTree(paddedTxs)
+    // var accounts = accountTable.getAllAccounts()
+    // var accountTree = new AccountTree(accounts)
+    // var stateTransition = accountTree.processTxArray(txTree)
+    // var inputs = getCircuitInput(stateTransition)
   }
   return;
 }
 
-// genEmptyTx generates empty transactions for coordinator
-// i.e transaction from and to coordinator
-function genEmptyTxs(count) {
-  var txs = [];
-  initialNonce = db.getCoordinatorNonce();
-  pubkey = global.gConfig.pubkey;
-  for (var i = 0; i < count; i++) {
-    let tx = new Transaction(
-      pubKey[0],
-      pubKey[1],
-      0,
-      pubKey[0],
-      pubKey[1],
-      initialNonce + i,
-      0,
-      0
-    );
 
-    tx.sign(global.gConfig.prvkey);
-    tx.addIndex();
-    txs.push(tx);
-    db.incrementCoordinatorNonce(1);
-  }
-}
-
-// pads exisitng tx array with more tx's from and to coordinator account
+// pads existing tx array with more tx's from and to coordinator account
 // in order to fill up the circuit inputs
 function pad(txs) {
   const maxLen = global.gConfig.txs_per_snark;
@@ -76,5 +64,36 @@ function pad(txs) {
   const numOfTxsToPad = maxLen - txs.length;
   var padTxs = genEmptyTxs(numOfTxsToPad);
   txs.push(padTxs);
+  console.log(
+    "=======================",
+    "len padded txs",
+    padTxs.length,
+    "==============================="
+  )
   return txs;
+}
+
+// genEmptyTx generates empty transactions for coordinator
+// i.e transaction from and to coordinator
+async function genEmptyTxs(count) {
+  var txs = [];
+  var initialNonce = await accountTable.getCoordinatorNonce();
+  const pubkey = global.gConfig.pubkey;
+  for (var i = 0; i < count; i++) {
+    let tx = new Transaction(
+      pubkey[0],
+      pubkey[1],
+      1, //fromIndex,
+      pubkey[0],
+      pubkey[1],
+      1, //toIndex
+      initialNonce + i,
+      0, //amount
+      0 //tokenType
+    );
+    tx.sign(global.gConfig.prvkey);
+    txs.push(tx);
+    console.log("emptyTx", i)
+    await accountTable.incrementCoordinatorNonce();
+  }
 }

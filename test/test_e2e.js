@@ -1,8 +1,8 @@
 import request from "request";
+import process from "process"
 import Transaction from "../src/models/transaction.js";
 import accountTable from "../src/db/accountTable.js"
 import Poller from "../src/events/poller.js";
-import process from "process"
 import fs from "fs"
 
 const url = "http://localhost:3000/submitTx";
@@ -16,8 +16,14 @@ console.log('alicePrvkey', alicePrvkey)
 const poller = new Poller(1000);
 poller.poll();
 
+var testCount 
+if (process.argv.length > 2){
+  testCount = parseInt(process.argv[2])
+} else {
+  testCount = fs.readFileSync('./test/testCount.json')
+}
+
 poller.onPoll(async () => {
-  var testCount = fs.readFileSync('./test/testCount.json')
   submitTx(
     alicePubkey[0], alicePubkey[1], 1, 
     alicePubkey[0], alicePubkey[1], 1,  
@@ -29,7 +35,6 @@ poller.onPoll(async () => {
     1  //tokenType
   );
   testCount++;
-  console.log('new count', testCount)
   fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
   // tmp = sender;
   // sender = receiver;

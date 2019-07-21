@@ -1,12 +1,28 @@
 import Tree from "./tree.js"
 import Transaction from "./transaction.js"
+import {hashAccount} from "./account.js"
+import fs from 'fs'
+
+const zeroCache = JSON.parse(fs.readFileSync('./config/zeroCache.json'))
 
 export default class AccountTree extends Tree{
     constructor(
-        _accounts
+        _accounts,
+        fullHeight
     ){
         super(_accounts.map(x => x.hashAccount()))
         this.accounts = _accounts
+        this.fullHeight = fullHeight
+    }
+
+    getSparseProof(){
+        const subtreeHeight = Math.log2(this.accounts.length);
+        const subtreeDepth = this.fullHeight - subtreeHeight
+        var sparseProof = new Array()
+        for (var i = 1; i < subtreeDepth; i++){
+            sparseProof.push(zeroCache[subtreeDepth - i])
+        }
+        return sparseProof
     }
 
     processTxArray(txTree){

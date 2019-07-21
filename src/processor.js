@@ -27,7 +27,6 @@ export default class Processor {
       });
       console.log("lock", this.lock)
       if (!this.lock){
-        this.lock = true
         this.processTxs(txs)
       }
       poller.poll(); // Go for the next poll
@@ -44,14 +43,14 @@ export default class Processor {
   async processTxs(txs) {
     // TODO if number of rows in table > req txs
     if (await txs.length > 0) {
-      var paddedTxs = await pad(txs)
-      console.log(
-        'paddedTxs', await paddedTxs.length,
-        await paddedTxs
-      )
-      // var txTree = new TxTree(paddedTxs)
-      // var accounts = accountTasyncable.getAllAccounts()
-      // var accountTree = new AccountTree(accounts)
+      this.lock = true;
+      var paddedTxs = await padTxs(txs)
+      var txTree = new TxTree(paddedTxs)
+      var accounts = await accountTable.getAllAccounts()
+      var paddedAccounts = await accountTable.padAccounts(accounts)
+      var accountTree = new AccountTree(paddedAccounts, global.gConfig.balance_depth)
+      var sparseProof = accountTree.getSparseProof()
+      console.log(sparseProof)
       // var stateTransition = accountTree.processTxArray(txTree)
       // var inputs = getCircuitInput(stateTransition)
       this.lock = false
@@ -63,7 +62,7 @@ export default class Processor {
 
 // pads existing tx array with more tx's from and to coordinator account
 // in order to fill up the circuit inputs
-async function pad(txs) {
+async function padTxs(txs) {
   const maxLen = global.gConfig.txs_per_snark;
   if (txs.length > maxLen) {
     throw new Error(

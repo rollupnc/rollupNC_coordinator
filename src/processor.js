@@ -5,6 +5,8 @@ import accountTable from "./db/accountTable"
 import Transaction from "./models/transaction";
 import TxTree from "./models/txTree";
 import AccountTree from "./models/accountTree";
+import getCircuitInput from "./helpers/circuitInput"
+import fs from 'fs'
 
 // processor is a polling service that will routinely pick transactions
 // from rabbitmq queue and process them to provide as input to the ciruit
@@ -51,13 +53,17 @@ export default class Processor {
       var paddedAccounts = await accountTable.padAccounts(accounts)
       
       var accountTree = new AccountTree(paddedAccounts, global.gConfig.balance_depth)
-      accountTree.save()
-      var sparseProof = accountTree.getSparseProof()
+      await accountTree.save()
       
-      // var stateTransition = accountTree.processTxArray(txTree)
-      // var inputs = getCircuitInput(stateTransition)
+      var stateTransition = await accountTree.processTxArray(txTree)
+      var inputs = getCircuitInput(stateTransition)
+      fs.writeFileSync(
+        "test/inputs/" + Date.now() + ".json",
+        JSON.stringify(inputs, null, 4),
+        "utf-8"
+      );
       this.lock = false
-      console.log("lock", this.lock)
+      console.log("padding lock", this.lock)
     }
   }
 

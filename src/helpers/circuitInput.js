@@ -1,6 +1,6 @@
-const {stringifyBigInts, unstringifyBigInts} = require('../src/stringifybigint.js')
+import {stringifyBigInts, unstringifyBigInts} from './stringifybigint.js'
 
-module.exports = function getCircuitInput(stateTransition){
+export default function getCircuitInput(stateTransition){
 
     const currentState = stateTransition.originalState;
     const txTree = stateTransition.txTree;
@@ -27,7 +27,7 @@ module.exports = function getCircuitInput(stateTransition){
 
     for (var i = 0 ; i < deltas.length; i ++){
 
-        delta = deltas[i];
+        const delta = deltas[i];
 
         intermediateRoots[2*i + 1] = delta.rootFromNewSender;
 

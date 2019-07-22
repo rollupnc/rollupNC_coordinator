@@ -80,7 +80,7 @@ async function submitTx(
     if (error) {
       return console.error("TX failed:", error);
     } else {
-      console.log("Tx successful!  Server responded with:", body);
+      console.log("Tx" + testCount + "successful!  Server responded with:", body);
     }
   });
 }

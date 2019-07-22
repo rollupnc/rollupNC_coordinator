@@ -21,7 +21,7 @@ export default class AccountTree extends Tree{
         const subtreeHeight = Math.log2(this.accounts.length);
         const subtreeDepth = this.fullHeight - subtreeHeight
         var sparseProof = new Array()
-        for (var i = 1; i < subtreeDepth; i++){
+        for (var i = 0; i < subtreeDepth; i++){
             sparseProof.push(zeroCache[subtreeDepth - i])
         }
         return sparseProof

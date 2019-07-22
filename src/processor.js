@@ -53,7 +53,6 @@ export default class Processor {
       var accountTree = new AccountTree(paddedAccounts, global.gConfig.balance_depth)
       accountTree.save()
       var sparseProof = accountTree.getSparseProof()
-      console.log(sparseProof)
       
       // var stateTransition = accountTree.processTxArray(txTree)
       // var inputs = getCircuitInput(stateTransition)

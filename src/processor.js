@@ -27,7 +27,7 @@ export default class Processor {
       logger.info("fetched transactions from mempool", {
         count: await txs.length
       });
-      console.log("lock", this.lock)
+      console.log("padding lock", this.lock)
       if (!this.lock){
         this.processTxs(txs)
       }
@@ -47,6 +47,7 @@ export default class Processor {
     if (await txs.length > 0) {
       this.lock = true;
       var paddedTxs = await padTxs(txs)
+      console.log('paddedTxs.length', await paddedTxs.length)
       var txTree = new TxTree(paddedTxs)
 
       var accounts = await accountTable.getAllAccounts()
@@ -72,6 +73,7 @@ export default class Processor {
 // pads existing tx array with more tx's from and to coordinator account
 // in order to fill up the circuit inputs
 async function padTxs(txs) {
+  console.log("starting to pad txs")
   const maxLen = global.gConfig.txs_per_snark;
   if (txs.length > maxLen) {
     throw new Error(
@@ -105,7 +107,7 @@ async function genEmptyTxs(count) {
     );
     tx.sign(global.gConfig.prvkey);
     txs.push(tx);
-    console.log("padding emptyTx", i)
+    // console.log("padding emptyTx", i)
     await accountTable.incrementCoordinatorNonce();
   }
   return txs

@@ -44,11 +44,15 @@ router.post("/submitTx", async function(req, res) {
   // validate tx
   if (tx.isValid()){
     // if valid, send tx to tx_pool
-    await addtoqueue(await utils.getConn(), await tx.serialise());
-    logger.debug("Added tx to queue");
-    res.json({ message: "Success" });
-  }
+    try {
+      await addtoqueue(await utils.getConn(), await tx.serialise());
+      logger.debug("Added tx to queue");
+      res.json({ message: "Success" });
+    } catch(err){
+      throw err
+    }
 
+  }
 });
 
 // get transaction hash from transaction params

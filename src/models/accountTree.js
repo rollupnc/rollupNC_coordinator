@@ -54,6 +54,8 @@ export default class AccountTree extends Tree{
 
     async processTxArray(txTree){
 
+        console.log("processing txArray. this may take a while...")
+
         const originalState = this.root;
         const txs = txTree.txs;
 

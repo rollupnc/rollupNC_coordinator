@@ -24,22 +24,27 @@ if (process.argv.length > 2){
 }
 
 poller.onPoll(async () => {
-  submitTx(
-    alicePubkey[0], alicePubkey[1], 1, 
-    alicePubkey[0], alicePubkey[1], 1,  
-    await accountTable.getNonce(
-      alicePubkey[0],
-      alicePubkey[1]
-    ) + testCount,
-    0, //amount
-    1  //tokenType
-  );
-  testCount++;
-  fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
-  // tmp = sender;
-  // sender = receiver;
-  // receiver = tmp;
-  poller.poll();
+  try {
+    submitTx(
+      alicePubkey[0], alicePubkey[1], 1, 
+      alicePubkey[0], alicePubkey[1], 1,  
+      await accountTable.getNonce(
+        alicePubkey[0],
+        alicePubkey[1]
+      ) + testCount,
+      0, //amount
+      1  //tokenType
+    );
+    testCount++;
+    fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
+    // tmp = sender;
+    // sender = receiver;
+    // receiver = tmp;
+    poller.poll();
+  } catch(err){
+    alert(err)
+  }
+
 });
 
 
@@ -80,7 +85,7 @@ async function submitTx(
     if (error) {
       return console.error("TX failed:", error);
     } else {
-      console.log("Tx" + testCount + "successful!  Server responded with:", body);
+      console.log("tx " , testCount - 1 , " successful!  Server responded with:", body);
     }
   });
 }

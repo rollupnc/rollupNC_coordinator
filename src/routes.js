@@ -45,6 +45,9 @@ router.post("/submitTx", async function(req, res) {
   if (tx.isValid()){
     // if valid, send tx to tx_pool
     try {
+      console.log(
+        "adding tx to queue", tx
+      )
       await addtoqueue(await utils.getConn(), await tx.serialise());
       logger.debug("Added tx to queue");
       res.json({ message: "Success" });

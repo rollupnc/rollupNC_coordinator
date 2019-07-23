@@ -80,9 +80,8 @@ async function padTxs(txs) {
       `Length of input array ${txs.length} is longer than max_length ${maxLen}`
     );
   }
-  const numOfTxsToPad = maxLen - txs.length;
+  const numOfTxsToPad = maxLen - await txs.length;
   var padTxs = await genEmptyTxs(numOfTxsToPad);
-  
   return txs.concat(padTxs);
 }
 
@@ -90,6 +89,9 @@ async function padTxs(txs) {
 // genEmptyTx generates empty transactions for coordinator
 // i.e transaction from and to coordinator
 async function genEmptyTxs(count) {
+  console.log(
+    "genEmptyTxs count", count
+  )
   var txs = [];
   var initialNonce = await accountTable.getCoordinatorNonce();
   const pubkey = global.gConfig.pubkey;
@@ -105,10 +107,10 @@ async function genEmptyTxs(count) {
       0, //amount
       0 //tokenType
     );
-    tx.sign(global.gConfig.prvkey);
+    await tx.sign(global.gConfig.prvkey);
     txs.push(tx);
     // console.log("padding emptyTx", i)
-    await accountTable.incrementCoordinatorNonce();
+    // await accountTable.incrementCoordinatorNonce();
   }
   return txs
 }

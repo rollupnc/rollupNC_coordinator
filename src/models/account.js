@@ -27,9 +27,13 @@ export default class Account {
 
   async debitAndIncreaseNonce(amount){
       this.balance = this.balance - amount; 
+      // console.log('nonce before increase', this.nonce)
       this.nonce++;
+      // console.log('nonce after increase', this.nonce)
       this.hash = this.hashAccount()
-      this.save()
+      await this.save()
+      // console.log('debitAndIncreaseNonce')
+      // console.log(await this)
       return this.hash
   }
 
@@ -38,7 +42,9 @@ export default class Account {
           this.balance = this.balance + amount;
           this.hash = this.hashAccount()
       }
-      this.save()
+      await this.save()
+      // console.log('credit')
+      // console.log(await this)
       return this.hash
   }
 

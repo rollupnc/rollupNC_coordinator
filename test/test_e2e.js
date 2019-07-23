@@ -26,8 +26,8 @@ if (process.argv.length > 2){
 poller.onPoll(async () => {
   try {
     submitTx(
-      alicePubkey[0], alicePubkey[1], 1, 
-      alicePubkey[0], alicePubkey[1], 1,  
+      alicePubkey[0], alicePubkey[1], 2, 
+      alicePubkey[0], alicePubkey[1], 2,  
       await accountTable.getNonce(
         alicePubkey[0],
         alicePubkey[1]

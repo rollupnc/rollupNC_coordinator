@@ -82,6 +82,9 @@ async function padTxs(txs) {
   }
   const numOfTxsToPad = maxLen - await txs.length;
   var padTxs = await genEmptyTxs(numOfTxsToPad);
+  for (const emptyTx of padTxs){
+    await emptyTx.save()
+  }
   return txs.concat(padTxs);
 }
 

@@ -1,10 +1,10 @@
 import Web3 from "web3";
-import abi from "./contracts/rollupnc";
+import abi from "../contracts/rollupnc";
 const web3 = new Web3("wss://ropsten.infura.io/ws");
-import config from "../DB/knexfile";
+import config from "../../DB/knexfile";
 import knexfile from "knex"
 import { Accounts } from "web3-eth-accounts";
-import Account from "./models/account.js"
+import Account from "../models/account.js"
 var knex = knexfile(config);
 
 const contract = new web3.eth.Contract(

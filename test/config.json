@@ -1,0 +1,47 @@
+{
+    "development": {
+        "amqp_url": "amqp://localhost",
+        "tx_queue": "transfer",
+        "txs_per_snark": 4,
+        "log_level": "debug",
+        "poll_interval": "1000",
+        "contractAddress": "",
+        "RPC": "http://localhost:8545",
+        "tx_depth": 8,
+        "balance_depth": 12,
+        "host": "localhost",
+        "user": "root",
+        "password": "123",
+        "pubkey": [
+            "12518878284088395161072699682436380517320406902477078910915904287504807078458",
+            "18112295695307423880280557311367556356640078195729582301969216232948811984599"
+        ],
+        "prvkey": "1506174607062196514214089639040202426482163424882596522045210624",
+        "db_name": "rollupNC",
+        "port": 3000
+    },
+    "staging": {
+        "amqp_url": "amqp://localhost",
+        "tx_queue": "tx",
+        "txs_per_snark": 4,
+        "log_level": "info",
+        "poll_interval": "1000",
+        "contractAddress": "",
+        "RPC": "https://ropsten.etherscan.io",
+        "tx_depth": 2,
+        "balance_depth": 2,
+        "port": 3000
+    },
+    "production": {
+        "amqp_url": "amqp://<insert ip>",
+        "tx_queue": "tx",
+        "txs_per_snark": 4,
+        "log_level": "info",
+        "poll_interval": "1000",
+        "contractAddress": "",
+        "RPC": "https://mainnet.etherscan.io",
+        "tx_depth": 2,
+        "balance_depth": 2,
+        "port": 3000
+    }
+}

@@ -9,12 +9,12 @@ exports.up = function(knex, Promise) {
     t.integer("fromIndex").notNullable();
     t.string("toX").notNullable();
     t.string("toY").notNullable();
-    t.string("toIndex").notNullable();
+    t.integer("toIndex").notNullable();
     t.integer("nonce").notNullable();
     t.integer("amount").notNullable();
     t.integer("tokenType").notNullable();
-    t.string("R1").notNullable();
-    t.string("R2").notNullable();
+    t.string("R8x").notNullable();
+    t.string("R8y").notNullable();
     t.string("S").notNullable();
     t.datetime("timestamp")
       .notNullable()

@@ -2,7 +2,7 @@ import utils from "./helpers/utils";
 import config from "../config/config.js";
 import logger from "./helpers/logger";
 import knex from "../DB/dbClient";
-import db from "./db";
+import txTable from "./db/txTable";
 
 const q = global.gConfig.tx_queue;
 const maxTxs = global.gConfig.txs_per_snark;
@@ -19,8 +19,10 @@ export default class Mempool {
     ch.consume(
       q,
       async msg => {
-        // var txCount = await db.getTxCount();
+        var txCount = await txTable.getTxCount();
+        console.log('txCount', txCount)
         var tx = utils.JSON2Tx(msg.content);
+        
         // TODO add all  validation components here
         // 1. Check all input lengths
         // 2. Check signature
@@ -28,7 +30,7 @@ export default class Mempool {
         // 4. Reject duplicate transactions
         // 5. Reject if mempool at capacity
         // IFF everything passes and the tx is likey to go through, persist the tx to DB
-        var res = await tx.save(1);
+        var res = await tx.save();
         // logger.info("Transaction passed all validation, adding to mempool", { tx: msg.content.toString() });
       },
       { noAck: true }

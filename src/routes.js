@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 import utils from "./helpers/utils";
-import eddsa from "../circomlib/src/eddsa.js";
 import logger from "./helpers/logger";
 import Transaction from "./models/transaction.js";
 
@@ -18,65 +17,57 @@ router.use(function timeLog(req, res, next) {
 router.post("/submitTx", async function(req, res) {
   var fromX = req.body.fromX;
   var fromY = req.body.fromY;
+  var fromIndex = parseInt(req.body.fromIndex);
   var toX = req.body.toX;
   var toY = req.body.toY;
-  var nonce = req.body.nonce;
+  var toIndex = parseInt(req.body.toIndex);
+  var nonce = parseInt(req.body.nonce);
   var amount = parseInt(req.body.amount);
   var tokenType = parseInt(req.body.tokenType);
-  var signature = req.body.signature;
-  var R = signature.R8.split(",");
+  var R8x = req.body.R8x;
+  var R8y = req.body.R8y;
+  var S = req.body.S;
   var tx = new Transaction(
     fromX,
     fromY,
+    fromIndex,
     toX,
     toY,
+    toIndex,
     nonce,
     amount,
     tokenType,
-    R[0],
-    R[1],
-    signature.S
+    R8x,
+    R8y,
+    S
   );
-  // send tx to tx_pool
-  await addtoqueue(await utils.getConn(), await tx.serialise());
-  logger.debug("Added tx to queue");
-  res.json({ message: "Success" });
+  // validate tx
+  if (tx.isValid()){
+    // if valid, send tx to tx_pool
+    await addtoqueue(await utils.getConn(), await tx.serialise());
+    logger.debug("Added tx to queue");
+    res.json({ message: "Success" });
+  }
+
 });
 
 // get transaction hash from transaction params
 router.post("/getTx", async function(req, res) {
-  var hash = await utils
-    .toMultiHash(
-      req.body.fromX,
-      req.body.fromY,
-      req.body.toX,
-      req.body.toY,
-      req.body.nonce,
-      req.body.amount,
-      req.body.tokenType
-    )
-    .toString();
+  var tx = new Transaction(
+    req.body.fromX,
+    req.body.fromY,
+    req.body.fromIndex,
+    req.body.toX,
+    req.body.toY,
+    req.body.nonce,
+    req.body.amount,
+    req.body.tokenType
+  )
+  var hash = await tx.hash.toString();
   logger.info("Tx leaf hash generated", { tx: hash });
   res.json({ txLeafHash: hash });
 });
 
-// temporary helper api to sign transaction using given priv key
-router.post("/sign", async function(req, res) {
-  var prvKey = Buffer.from(req.body.privKey.padStart(64, "0"), "hex");
-  var hash = utils.toMultiHash(
-    req.body.fromX,
-    req.body.fromY,
-    req.body.toX,
-    req.body.toY,
-    req.body.amount,
-    req.body.tokenType
-  );
-  signature = eddsa.signMiMC(prvKey, hash);
-  // logger.debug("Signature generated", { sig: signature.R8.toString() })
-  res.json({
-    signature: { R8: signature.R8.toString(), S: signature.S.toString() }
-  });
-});
 
 // add transaction to queue
 async function addtoqueue(conn, tx) {

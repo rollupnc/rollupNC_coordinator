@@ -42,7 +42,7 @@ poller.onPoll(async () => {
     // receiver = tmp;
     poller.poll();
   } catch(err){
-    alert(err)
+    console.log(err)
   }
 
 });

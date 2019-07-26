@@ -26,6 +26,7 @@ console.log('root', zeroTree.root)
 
 var zeroCache = [stringifyBigInts(zeroHash)]
 
+// root at zeroCache[0]
 for (var i = depth - 1; i >= 0; i--){
     zeroCache.unshift(stringifyBigInts(zeroTree.innerNodes[i][0]))
 }

@@ -20,35 +20,17 @@ var conn = null;
 // use existing connection is available
 // else create new conn
 async function getConn() {
-  if (conn === null) {
-    conn = await amqp.connect(global.gConfig.amqp);
+  try{
+    if (conn === null) {
+      conn = await amqp.connect(global.gConfig.amqp_url);
+    }
+    console.log("conn._eventsCount", conn._eventsCount)
+    return conn;
+  } catch(err){
+    console.error
+    return;
   }
-  return conn;
-}
 
-async function getTxArray(txs) {
-  // logger.debug("Prepping inputs to snark for given transactions")
-
-  for (tx in txs) {
-    var txArray = Array();
-    var tx = txs[i];
-    var leaf = new Transaction(
-      tx.fromX,
-      tx.fromY,
-      tx.fromIndex,
-      tx.toX,
-      tx.toY,
-      tx.nonce,
-      tx.amount,
-      tx.tokenType,
-      tx.R8x,
-      tx.R8y,
-      tx.S
-    )
-    // logger.debug("traversing", { index: i, len: txs.length, transaction: txs[i] })
-    txArray.push(leaf)
-  }
-  return txArray
 }
 
 // convert from JSON transaction to transaction object

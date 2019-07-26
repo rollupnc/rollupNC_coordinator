@@ -5,6 +5,8 @@ import accountTable from "./db/accountTable"
 import Transaction from "./models/transaction";
 import TxTree from "./models/txTree";
 import AccountTree from "./models/accountTree";
+import getCircuitInput from "./helpers/circuitInput"
+import fs from 'fs'
 
 // processor is a polling service that will routinely pick transactions
 // from rabbitmq queue and process them to provide as input to the ciruit
@@ -25,7 +27,7 @@ export default class Processor {
       logger.info("fetched transactions from mempool", {
         count: await txs.length
       });
-      console.log("lock", this.lock)
+      console.log("padding lock", this.lock)
       if (!this.lock){
         this.processTxs(txs)
       }
@@ -44,18 +46,25 @@ export default class Processor {
     // TODO if number of rows in table > req txs
     if (await txs.length > 0) {
       this.lock = true;
-      var paddedTxs = await pad(txs)
-      console.log(
-        'paddedTxs', await paddedTxs.length,
-        await paddedTxs
-      )
+      var paddedTxs = await padTxs(txs)
+      console.log('paddedTxs.length', await paddedTxs.length)
       var txTree = new TxTree(paddedTxs)
-      // var accounts = accountTasyncable.getAllAccounts()
-      // var accountTree = new AccountTree(accounts)
-      // var stateTransition = accountTree.processTxArray(txTree)
-      // var inputs = getCircuitInput(stateTransition)
+
+      var accounts = await accountTable.getAllAccounts()
+      var paddedAccounts = await accountTable.padAccounts(accounts)
+      
+      var accountTree = new AccountTree(paddedAccounts, global.gConfig.balance_depth)
+      await accountTree.save()
+      
+      var stateTransition = await accountTree.processTxArray(txTree)
+      var inputs = getCircuitInput(stateTransition)
+      fs.writeFileSync(
+        "test/inputs/" + Date.now() + ".json",
+        JSON.stringify(inputs, null, 4),
+        "utf-8"
+      );
       this.lock = false
-      console.log("lock", this.lock)
+      console.log("padding lock", this.lock)
     }
   }
 
@@ -63,16 +72,19 @@ export default class Processor {
 
 // pads existing tx array with more tx's from and to coordinator account
 // in order to fill up the circuit inputs
-async function pad(txs) {
+async function padTxs(txs) {
+  console.log("starting to pad txs")
   const maxLen = global.gConfig.txs_per_snark;
   if (txs.length > maxLen) {
     throw new Error(
       `Length of input array ${txs.length} is longer than max_length ${maxLen}`
     );
   }
-  const numOfTxsToPad = maxLen - txs.length;
+  const numOfTxsToPad = maxLen - await txs.length;
   var padTxs = await genEmptyTxs(numOfTxsToPad);
-  
+  for (const emptyTx of padTxs){
+    await emptyTx.save()
+  }
   return txs.concat(padTxs);
 }
 
@@ -80,6 +92,9 @@ async function pad(txs) {
 // genEmptyTx generates empty transactions for coordinator
 // i.e transaction from and to coordinator
 async function genEmptyTxs(count) {
+  console.log(
+    "genEmptyTxs count", count
+  )
   var txs = [];
   var initialNonce = await accountTable.getCoordinatorNonce();
   const pubkey = global.gConfig.pubkey;
@@ -95,10 +110,10 @@ async function genEmptyTxs(count) {
       0, //amount
       0 //tokenType
     );
-    tx.sign(global.gConfig.prvkey);
+    await tx.sign(global.gConfig.prvkey);
     txs.push(tx);
-    console.log("padding emptyTx", i)
-    await accountTable.incrementCoordinatorNonce();
+    // console.log("padding emptyTx", i)
+    // await accountTable.incrementCoordinatorNonce();
   }
   return txs
 }

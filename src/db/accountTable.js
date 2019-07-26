@@ -48,7 +48,7 @@ async function getAllAccounts() {
       var leaf = new Account(
         result.index,
         result.pubkeyX,
-        resuplt.pubkeyY,
+        result.pubkeyY,
         result.balance,
         result.nonce,
         result.tokenType
@@ -56,7 +56,27 @@ async function getAllAccounts() {
       accounts.push(leaf);
     }
     return accounts;
+}
+
+async function padAccounts(accounts){
+
+  const diff = nearestPower2(accounts.length) - accounts.length
+  const zeroAccount = new Account(0,"0","0",0,0,0)
+  const padArray = new Array(diff).fill(zeroAccount)
+
+  function nearestPower2(number){
+    if (number < 1){
+      return 0
+    }
+    var i = 1;
+    while (i < number){
+      i = i*2
+    }
+    return i
   }
+
+  return accounts.concat(padArray)
+}
 
 
 // getCoordinatorNonce fetches coordinator nonce
@@ -99,6 +119,7 @@ export default{
     addGenesisState,
     getAccountFromPubkey,
     getAllAccounts,
+    padAccounts,
     getCoordinatorNonce,
     incrementCoordinatorNonce,
     getNonce,

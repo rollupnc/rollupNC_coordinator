@@ -42,9 +42,16 @@ export default class Transaction {
 
       this.hash = this.hashTx();
 
-      // var indexes = this.findIndex();
-      // this.toIndex = indexes[0];
-      // this.fromIndex = indexes[1];
+      if (
+        this.toIndex == NaN || 
+        this.toIndex == undefined ||
+        this.toIndex == "" ||
+        this.toIndex == null
+      ){
+        this.toIndex = accountTable.getAccountFromPubkey(
+          this.toX, this.toY
+        ).index
+      }
 
       // TODO figure out when to add txRoot
     }
@@ -99,17 +106,6 @@ export default class Transaction {
         this.checkSenderBalance()
       )
 
-    }
-
-    async addIndex() {
-      const fromAccount = await knex("accounts")
-        .where({ pubkeyX: this.fromX })
-        .first();
-      this.fromIndex = fromAccount.index;
-      const toAccount = await knex("accounts")
-        .where({ pubkeyX: this.toX })
-        .first();
-      this.toIndex = toAccount.index;
     }
 
     async save() {

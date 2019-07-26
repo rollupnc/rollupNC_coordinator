@@ -7,6 +7,9 @@ module.exports = {
     password: global.gConfig.password,
     database: global.gConfig.db_name
   },
+  pool: {
+    max: 1000
+  },
   migrations: {
     directory: './migrations',
   },

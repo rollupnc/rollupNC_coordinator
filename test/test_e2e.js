@@ -1,4 +1,5 @@
 import request from "request";
+import process from "process"
 import Transaction from "../src/models/transaction.js";
 import accountTable from "../src/db/accountTable.js"
 import Poller from "../src/events/poller.js";
@@ -15,24 +16,35 @@ console.log('alicePrvkey', alicePrvkey)
 const poller = new Poller(1000);
 poller.poll();
 
+var testCount 
+if (process.argv.length > 2){
+  testCount = parseInt(process.argv[2])
+} else {
+  testCount = fs.readFileSync('./test/testCount.json')
+}
+
 poller.onPoll(async () => {
-  var testCount = fs.readFileSync('./test/testCount.json')
-  submitTx(
-    alicePubkey[0], alicePubkey[1], 1, 
-    alicePubkey[0], alicePubkey[1], 1,  
-    await accountTable.getNonce(
-      alicePubkey[0],
-      alicePubkey[1]
-    ) + testCount,
-    0, //amount
-    1  //tokenType
-  );
-  testCount++;
-  fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
-  // tmp = sender;
-  // sender = receiver;
-  // receiver = tmp;
-  poller.poll();
+  try {
+    submitTx(
+      alicePubkey[0], alicePubkey[1], 2, 
+      alicePubkey[0], alicePubkey[1], 2,  
+      await accountTable.getNonce(
+        alicePubkey[0],
+        alicePubkey[1]
+      ) + testCount,
+      0, //amount
+      1  //tokenType
+    );
+    testCount++;
+    fs.writeFileSync('./test/testCount.json', JSON.stringify(testCount))
+    // tmp = sender;
+    // sender = receiver;
+    // receiver = tmp;
+    poller.poll();
+  } catch(err){
+    console.log(err)
+  }
+
 });
 
 
@@ -73,7 +85,7 @@ async function submitTx(
     if (error) {
       return console.error("TX failed:", error);
     } else {
-      console.log("Tx successful!  Server responded with:", body);
+      console.log("tx " , testCount - 1 , " successful!  Server responded with:", body);
     }
   });
 }

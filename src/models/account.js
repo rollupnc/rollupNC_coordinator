@@ -13,15 +13,39 @@ export default class Account {
   }
 
   async save() {
-    var result = await knex('accounts').insert({
+    var result = await knex.insert({
       index: this.index,
       pubkeyX: this.pubkeyX,
       pubkeyY: this.pubkeyY,
       balance: this.balance,
       nonce: this.nonce,
       tokenType: this.tokenType
-    })
+    }).into('accounts')
+    .onDuplicateUpdate('balance', 'nonce')
     return result;
+  }
+
+  async debitAndIncreaseNonce(amount){
+      this.balance = this.balance - amount; 
+      // console.log('nonce before increase', this.nonce)
+      this.nonce++;
+      // console.log('nonce after increase', this.nonce)
+      this.hash = this.hashAccount()
+      await this.save()
+      // console.log('debitAndIncreaseNonce')
+      // console.log(await this)
+      return this.hash
+  }
+
+  async credit(amount){
+      if (this.index > 0){ // do not credit zero leaf
+          this.balance = this.balance + amount;
+          this.hash = this.hashAccount()
+      }
+      await this.save()
+      // console.log('credit')
+      // console.log(await this)
+      return this.hash
   }
 
   hashAccount() {
@@ -32,6 +56,7 @@ export default class Account {
       this.nonce,
       this.tokenType
     ])
+    this.hash = leafHash;
     return leafHash;
   }
 

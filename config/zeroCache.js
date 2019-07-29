@@ -23,6 +23,7 @@ const leaves = new Array(numLeaves).fill(zeroHash)
 const zeroTree = new Tree(leaves)
 
 console.log('root', zeroTree.root)
+console.log('zeroTree', zeroTree)
 
 var zeroCache = [stringifyBigInts(zeroHash)]
 

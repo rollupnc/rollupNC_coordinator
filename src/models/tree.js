@@ -49,8 +49,9 @@ export default class Tree{
 
     verifyProof(leafHash, idx, proof){
         const computed_root = treeHelper.rootFromLeafAndPath(leafHash, idx, proof)
-        return this.root == computed_root;
-    }
+		return this.root == computed_root;
+
+	}
 
     findLeafIdxByHash(hash){
         const index = this.leafNodes.findIndex(leaf => leaf.hash == hash)

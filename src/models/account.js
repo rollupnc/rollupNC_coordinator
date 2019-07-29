@@ -34,7 +34,7 @@ export default class Account {
       await this.save()
       // console.log('debitAndIncreaseNonce')
       // console.log(await this)
-      return this.hash
+      return this
   }
 
   async credit(amount){
@@ -45,7 +45,7 @@ export default class Account {
       await this.save()
       // console.log('credit')
       // console.log(await this)
-      return this.hash
+      return this
   }
 
   hashAccount() {

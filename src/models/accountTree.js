@@ -56,7 +56,7 @@ export default class AccountTree extends Tree{
 
         console.log("processing txArray. this may take a while...")
 
-        const originalState = this.root;
+        const originalState = this.fullRoot;
         const txs = txTree.txs;
 
         // var paths2txRoot = new Array(txs.length);
@@ -104,44 +104,48 @@ export default class AccountTree extends Tree{
         const indexFrom = sender.index;
         const balanceFrom = sender.balance;
 
+        // for (var i = 0; i < this.innerNodes.length; i++){
+        //     console.log('depth', i, this.innerNodes[i])
+        // }
+		// console.log('accounts', this.leafNodes)
+		
+        const [senderProof, senderProofPos] = this.getAccountProof(sender);
+        this.checkAccountExistence(sender, senderProof);
+        tx.checkSignature();
+        this.checkTokenTypes(tx);
+
+		var newSender = await sender.debitAndIncreaseNonce(tx.amount)
+		var newSenderHash = newSender.hash
+
+		this.accounts[sender.index] = newSender
+        this.leafNodes[sender.index] = newSenderHash
+        this.updateInnerNodes(newSenderHash, sender.index, senderProof);
+        this.root = this.innerNodes[0][0]
+        const rootFromNewSender = this.root;
+        // console.log("rootFromNewSender", rootFromNewSender)
+		const fullRootFromNewSender = treeHelper.rootFromLeafAndPath(rootFromNewSender, 0, this.sparseProof)
+		this.fullRoot = fullRootFromNewSender
+
         // const receiver = this.findAccountByPubkey(tx.toX, tx.toY);
         const receiver = this.accounts[tx.toIndex];
         const indexTo = receiver.index;
         const balanceTo = receiver.balance;
         const nonceTo = receiver.nonce;
         const tokenTypeTo = receiver.tokenType;
-
-        // for (var i = 0; i < this.innerNodes.length; i++){
-        //     console.log('depth', i, this.innerNodes[i])
-        // }
-        // console.log('accounts', this.leafNodes)
-
-        const [senderProof, senderProofPos] = this.getAccountProof(sender);
-        this.checkAccountExistence(sender, senderProof);
-        tx.checkSignature();
-        this.checkTokenTypes(tx);
-
-        var newSenderHash = await sender.debitAndIncreaseNonce(tx.amount)
-
-        this.leafNodes[sender.index] = newSenderHash
-        this.updateInnerNodes(newSenderHash, sender.index, senderProof);
-        this.root = this.innerNodes[0][0]
-        const rootFromNewSender = this.root;
-        // console.log("rootFromNewSender", rootFromNewSender)
-        const fullRootFromNewSender = treeHelper.rootFromLeafAndPath(rootFromNewSender, 0, this.sparseProof)
-
-        const [receiverProof, receiverProofPos] = this.getAccountProof(receiver);
-        
+		const [receiverProof, receiverProofPos] = this.getAccountProof(receiver);
         this.checkAccountExistence(receiver, receiverProof);
         
-        var newReceiverHash = await receiver.credit(tx.amount)
-        
+        var newReceiver = await receiver.credit(tx.amount)
+		var newReceiverHash = newReceiver.hash
+		
+		this.accounts[receiver.index] = newReceiver
         this.leafNodes[receiver.index] = newReceiverHash;
         this.updateInnerNodes(newReceiverHash, receiver.index, receiverProof);
         this.root = this.innerNodes[0][0]
         const rootFromNewReceiver = this.root;
         const fullRootFromNewReceiver = treeHelper.rootFromLeafAndPath(rootFromNewReceiver, 0, this.sparseProof)
-    
+		this.fullRoot = fullRootFromNewReceiver
+
         // console.log('rootFromNewReceiver', rootFromNewReceiver)
 
         return {
@@ -176,6 +180,9 @@ export default class AccountTree extends Tree{
     }
 
     checkAccountExistence(account, accountProof){
+		console.log(
+			"this.fullRoot", this.fullRoot
+		)
         if (!this.verifyProof(account.hash, account.index, accountProof)){
             console.log('given account hash', account.hash)
             console.log('given account proof', accountProof)

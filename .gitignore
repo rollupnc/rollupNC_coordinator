@@ -1,3 +1,5 @@
 node_modules
 config/config.json
-test/testCount.json
+testCount.json
+genesis.json
+preset-genesis.json

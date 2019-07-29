@@ -1,4 +1,6 @@
 node_modules
 config/config.json
 test/testCount.json
-test/inputs/
+testCount.json
+genesis.json
+preset-genesis.json
